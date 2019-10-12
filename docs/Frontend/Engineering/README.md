@@ -126,4 +126,17 @@ var load = function (module) {
 - 前者支持动态导入，也就是 `require(${path}/xx.js)`，后者目前不支持，但是已有提案。（webpack 中可用）
 - 前者是同步导入，因为用于服务端，文件都在本地，同步导入即使卡住对主线程影响也不大。而后者是异步导入，因为用于浏览器，需要下载文件，如果也采用同步导入会对渲染有很大影响。
 - 前者在导出时都是值拷贝，就算导出的值变了，导入的值也不会改变，所以如果想更新值，必须重新导入一次。但是后者采用实时绑定的方式，导入导出的值都指向同一个内存地址，所以导入值会跟随导出值变化。
-- 后者会编译成 `require/exports` 来执行的。
+- 后者会编译成 `require/exports` 执行。
+
+## Babel 的原理
+
+babel 本质就是编译器，它的转译过程分为三个阶段：
+
+1. 解析 Parse: 将代码解析生成抽象语法树( 即AST )，即词法分析与语法分析的过程。
+2. 转换 Transform: 对于 AST 进行变换一系列的操作，babel 接受得到 AST 并通过 babel-traverse 对其进行遍历，在此过程中对相应节点进行添加、更新及移除等操作。
+3. 生成 Generate: 将变换后的 AST 再转换为 JS 代码, 使用到的模块是 babel-generator。
+
+![babel原理](../images/engineering/babel.png)
+
+> 如何写一个babel插件，参考[官方的插件教程](https://github.com/jamiebuilds/babel-handbook/blob/master/translations/zh-Hans/plugin-handbook.md#builders)。
+
