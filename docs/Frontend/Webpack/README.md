@@ -1,6 +1,6 @@
 # Webpack
 
-## 入门学习
+## 实践学习
 
 - [Webpack4 基础入门与实践](https://juejin.im/post/5e46e1206fb9a07cbe345dac)
 - [Webpack4 进阶与实践](https://juejin.im/post/5e5420e8e51d4526ea7ef35e)
@@ -25,7 +25,7 @@ Webpack 的运行流程是一个串行的过程，从启动到结束会依次执
 
 ::: tip
 
-**Loader **直译为"加载器"。Webpack 将一切文件视为模块，但是 webpack 原生是只能解析 js 文件，如果想将其他文件也打包的话，就会用到`loader`。 所以 Loader 的作用是让 webpack 拥有了加载和解析_非 JavaScript 文件_的能力。
+**Loader**直译为"加载器"。Webpack 将一切文件视为模块，但是 webpack 原生是只能解析 js 文件，如果想将其他文件也打包的话，就会用到`loader`。 所以 Loader 的作用是让 webpack 拥有了加载和解析_非 JavaScript 文件_的能力。
 
 :::
 
@@ -42,7 +42,7 @@ Webpack 的运行流程是一个串行的过程，从启动到结束会依次执
 
 ::: tip
 
-**Plugin **直译为"插件"。Plugin 可以扩展 webpack 的功能，让 webpack 具有更多的灵活性。 在 Webpack 运行的生命周期中会广播出许多事件，Plugin 可以监听这些事件，在合适的时机通过 Webpack 提供的 API 改变输出结果。
+**Plugin**直译为"插件"。Plugin 可以扩展 webpack 的功能，让 webpack 具有更多的灵活性。 在 Webpack 运行的生命周期中会广播出许多事件，Plugin 可以监听这些事件，在合适的时机通过 Webpack 提供的 API 改变输出结果。
 
 :::
 
@@ -57,6 +57,14 @@ Webpack 的运行流程是一个串行的过程，从启动到结束会依次执
 
 **两者除了概念不同具体用法也不同：**
 
-- **Loader **在`module.rules`中配置，也就是说他作为模块的解析规则而存在。 类型为数组，每一项都是一个`Object`，里面描述了对于什么类型的文件（`test`），使用什么加载 (`loader`) 和使用的参数（`options`）
-- **Plugin **在`plugins`中单独配置。 类型为数组，每一项是一个`plugin`的实例，参数都通过构造函数传入。
+- **Loader**在`module.rules`中配置，也就是说他作为模块的解析规则而存在。 类型为数组，每一项都是一个`Object`，里面描述了对于什么类型的文件（`test`），使用什么加载 (`loader`) 和使用的参数（`options`）
+- **Plugin**在`plugins`中单独配置。 类型为数组，每一项是一个`plugin`的实例，参数都通过构造函数传入。
+
+## 热更新原理
+
+## 优化前端性能
+
+## 提高打包速度
+
+## 提高构建速度
 
