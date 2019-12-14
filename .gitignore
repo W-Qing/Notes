@@ -1,0 +1,13 @@
+# Editor directories and files
+.vscode
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Node modules and dist files
+node_modules/
+.temp/
+
+.DS_Store
