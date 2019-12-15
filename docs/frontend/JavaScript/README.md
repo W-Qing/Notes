@@ -1,16 +1,18 @@
-# JS
+# JavaScript
 
 ## 内置类型
 
-JS 中分为七种内置类型，七种内置类型又分为两大类型：基本类型和对象（Object）。
+**JS 中分为七种内置类型，七种内置类型又分为两大类型：基本类型和对象（Object）。**
 
-基本类型有六种： null，undefined，boolean，number，string，symbol。
+**基本类型有六种： null，undefined，boolean，number，string，symbol。**
 
 > 其中 JS 的数字类型是浮点类型的，没有整型。
 >
 > 并且浮点类型基于 IEEE 754 标准实现，在使用中会遇到某些 Bug。
 >
 > NaN 也属于 number 类型，并且 NaN 不等于自身。
+>
+> 还有一个没有正式发布但即将被加入标准的原始类型BigInt。
 
 对于基本类型来说，如果使用字面量的方式，那么这个变量只是个字面量，只有在必要的时候才会转换为对应的类型。
 
@@ -27,7 +29,15 @@ let b = a
 b.name = 'EF'
 console.log(a.name) // EF
 ```
-## Typeof
+## null与undefined的区别？
+
+null表示为空，代表此处不应该有值的存在，一个对象可以是null，代表是个空对象，而null本身也是对象。
+
+undefined表示『不存在』，JavaScript是一门动态类型语言，成员除了表示存在的空值外，还有可能根本就不存在（因为存不存在只在运行期才知道），这就是undefined的意义所在。
+
+## typeof
+
+使用`typeof`能够快速区分出 Null 之外的各种基本数据类型。
 
 ```javascript
 typeof 1 // 'number'
@@ -37,7 +47,7 @@ typeof true // 'boolean'
 typeof Symbol() // 'symbol'
 typeof b // b 没有声明，但是还会显示 undefined
 ```
-`typeof` 对于对象，除了函数都会显示 `object`
+而`typeof` 对于对象，除了函数都会显示 `object`。
 
 ```js
 typeof [] // 'object'
@@ -45,32 +55,89 @@ typeof {} // 'object'
 typeof console.log // 'function'
 ```
 
-对于 `null` 来说，虽然它是基本类型，但是会显示 `object`，这是一个存在很久了的 Bug
+对于特殊的 `null` 来说，虽然它是基本类型，但是使用`typeof`会显示 `object`，这是一个存在很久了的 Bug。
 
 ```js
 typeof null // 'object'
 ```
 
-PS：为什么会出现这种情况呢？因为在 JS 的最初版本中，使用的是 32 位系统，为了性能考虑使用低位存储了变量的类型信息，`000` 开头代表是对象，然而 `null` 表示为全零，所以将它错误的判断为 `object` 。虽然现在的内部类型判断代码已经改变了，但是对于这个 Bug 却是一直流传下来。
+> PS：为什么会出现这种情况呢？
+>
+> 因为在 JS 的最初版本中，使用的是 32 位系统，为了性能考虑使用低位存储了变量的类型信息，`000` 开头代表是对象，然而 `null` 表示为全零，所以将它错误的判断为 `object` 。虽然现在的内部类型判断代码已经改变了，但是对于这个 Bug 却是一直流传下来。
 
-如果我们想**正确获得一个变量的类型**，可以通过 `Object.prototype.toString.call(xx)`。
+## instanceof
 
-这样我们就可以获得类似 `[object Type]` 的字符串。
+使用`instanceof` 可以正确的判断对象的类型，因为内部机制是通过判断对象的[原型链](/frontend/JavaScript/#原型)中是不是能找到类型的 `prototype`。
+
+优点：能够区分Array、Object和Function，适合用于判断自定义的类实例对象 
 
 ```js
-let a
+[] instanceof Array                   // true
+function(){} instanceof Function      // true
+{} instanceof Object                  // true
+```
+
+缺点：Number，Boolean，String这些基本数据类型不能判断
+
+```js
+2 instanceof Number					//false
+true instanceof Boolean     //false
+'str' instanceof String  		//false
+```
+
+我们也可以试着实现一下 `instanceof`
+
+```js
+function instanceof(left, right) {
+    // 获得类型的原型
+    let prototype = right.prototype
+    // 获得对象的原型
+    left = left.__proto__
+    // 判断对象的类型是否等于类型的原型
+    while (true) {
+    	if (left === null)
+    		return false
+    	if (prototype === left)
+    		return true
+    	left = left.__proto__
+    }
+}
+```
+
+**如果我们想正确获得一个变量的类型，可以通过 `Object.prototype.toString.call(xx)`。**
+
+```js
+Object.prototype.toString.call(2)    		  //[object Number]
+Object.prototype.toString.call(true)			//[object Boolean]                
+Object.prototype.toString.call('str') 		//[object String]
+Object.prototype.toString.call([])				//[object Array]
+Object.prototype.toString.call(() => {})	//[object Function]
+Object.prototype.toString.call({})				//[object Object]
+Object.prototype.toString.call(undefined) //[object Undefined]
+Object.prototype.toString.call(null)			//[object Null]
+```
+
+我们就可以获得类似 `[object Type]` 的字符串。从而可以精准判断数据的类型，但是这种写法繁琐不容易记，推荐进行封装后使用。
+
+```js
 // 我们也可以这样判断 undefined
+let a
 a === undefined
-// 但是 undefined 不是保留字，能够在低版本浏览器被赋值
+
+// 但是 undefined 不是保留字，在低版本浏览器能够被重新赋值
 let undefined = 1
-// 这样判断就会出错
+// 这样 === 的判断就会出错
 // 所以可以用下面的方式来判断，并且代码量更少
+a === void 0
 // 因为 void 后面随便跟上一个组成表达式
 // 返回就是 undefined
-a === void 0
 ```
 
 ## 类型转换
+
+类型转换分为显式转换和隐式转换，但不管是哪一种方式，转换时都会遵循一定的规则原理。由于JavaScript是一门动态类型的语言，可以随时给变量赋予任意值，但是各种运算符或条件判断时是需要知道变量的特定类型的，因此JavaScript引擎会在运算时为变量设定类型。
+
+这看起来很美好，JavaScript引擎帮我们搞定了变量类型的问题，但是引擎毕竟不是ASI(超级人工智能)，如果我们不了解这些转换规则，那么它的很多动作往往会跟我们预期相去甚远。
 
 ### 转Boolean
 
@@ -133,7 +200,7 @@ let a = {
 
 上图中的 `toPrimitive` 就是对象转基本类型。
 
-这里来解析一道题目 `[] == ![] // -> true` ，下面是这个表达式为何为 `true` 的步骤
+这里来解析一道题目 `[] == ![] // -> true` ，下面是这个表达式为何为 `true` 的步骤：
 
 ```js
 // [] 转成 true，然后取反变成 false
@@ -154,17 +221,147 @@ ToPrimitive([]) == 0
 1. 如果是对象，就通过 `toPrimitive` 转换对象
 2. 如果是字符串，就通过 `unicode` 字符索引来比较
 
-## 原型
+## 原型与原型链
 
-![prototype](https://yck-1254263422.cos.ap-shanghai.myqcloud.com/blog/2019-06-01-043721.png)
+两个关键点：一个是原型对象是什么？另一个是原型链是如何形成的?
 
-每个函数都有 `prototype` 属性，除了 `Function.prototype.bind()`，该属性指向原型。
+### 原型对象
 
-每个对象都有 `__proto__` 属性，指向了创建该对象的构造函数的原型。其实这个属性指向了 `[[prototype]]`，但是 `[[prototype]]` 是内部属性，我们并不能访问到，所以使用 `_proto_` 来访问。
+**绝大部分的函数(少数内建函数除外，Math)都有一个`prototype`属性，这个属性值是一个对象，即构造函数用来创建新实例的原型。**  而所有被创建的实例对象都会共享原型对象，因此这些对象便可以访问原型对象的属性。
 
-对象可以通过 `__proto__` 来寻找不属于该对象的属性，`__proto__` 将对象连接起来组成了原型链。
+例如`hasOwnProperty()`方法存在于 Obejct 原型对象中，它便可以被任何对象当做自己的方法使用。
+
+> 用法：`object.hasOwnProperty( propertyName )`
+>
+> 如果对象`object`具有名称为`propertyName`的属性，则返回`true`，否则返回`false`。
+
+```javascript
+ var person = {
+    name: "Nasrion",
+    age: 20,
+    gender: "woman"
+  };
+person.hasOwnProperty("name") //true
+person.hasOwnProperty("hasOwnProperty") //false
+Object.prototype.hasOwnProperty("hasOwnProperty") //true
+```
+
+由以上代码可知,`hasOwnProperty()`并不存在于`person`对象中，但是`person`依然可以拥有此方法。
+
+所以`person`对象是如何找到`Object`对象中的方法的呢?  
+
+### 原型链
+
+原因是**每个对象都有 `__proto__` 属性，此属性指向该对象的构造函数的原型。**
+
+> 其实这个属性指向了 `[[prototype]]`，但是 `[[prototype]]` 是内部属性，我们并不能访问到，所以使用 `_proto_` 来访问。
+>
+
+对象可以通过 `__proto__`与上游的构造函数的原型对象连接起来，来寻找不属于该对象的属性。而上游的原型对象也有一个`__proto__`，这样就形成了原型链。
+
+![prototype](../Images/js/yuanxinglian.png)
 
 如果你想更进一步的了解原型，可以仔细阅读 [深度解析原型中的各个难点](https://github.com/KieSun/Blog/issues/2)。
+
+## this
+
+`this` 的指向问题是很多人都会混淆的概念，但其实它一点都不难。不同的指向只是在于遵循了一定的绑定规则，你只需要记住这几个规则就可以了。
+
+首先，在默认情况下，this是指向全局对象的，比如在浏览器中就是指向window。
+
+```js
+name = "Mintnoii";
+
+function sayName () {
+    console.log(this.Mintnoii);
+};
+
+sayName(); //"Mintnoii"
+```
+
+其次，如果函数被调用的位置存在上下文对象时，那么函数是被隐式绑定的。
+
+```js
+function f() {
+    console.log( this.name );
+}
+
+var obj = {
+    name: "Mintnoii",
+    f: f
+};
+
+obj.f(); // 被调用的位置恰好被对象obj拥有，因此结果是Mintnoii
+```
+
+再次，显式地改变 this 绑定指向，常见的方法就是 call、apply、bind。
+
+```js
+// 以bind为例:
+function f() {
+    console.log( this.name );
+}
+var obj = {
+    name: "Mintnoii",
+};
+
+var obj1 = {
+     name: "Spike"
+};
+
+f.bind(obj)(); // Mintnoii ,由于bind将obj绑定到 f 函数上后返回一个新函数,因此需要再在后面加上括号进行执行,这是bind与apply和call的区别
+```
+
+最后，也是优先级最高的 new 绑定。
+
+用 new 调用一个构造函数，会创建一个新对象, 在创造这个新对象的过程中,新对象会自动绑定到 Person 对象的this上，那么 this 自然就指向这个新对象，不会被任何方式修改。
+
+```js
+function Person(name) {
+  this.name = name;
+  console.log(name);
+}
+
+var person1 = new Person('Mintnoii'); // Mintnoii
+```
+总结起来就两点：
+
+**1. this 的指向不是在编写时确定的,而是在执行时确定的**
+
+**2. this 绑定的优先级: new绑定 > 显式绑定 >隐式绑定 >默认绑定**
+
+以上几种情况明白了，很多代码中的 `this` 应该就没什么问题了。
+
+那么下面让我们看看箭头函数中的 `this`。
+
+**其实箭头函数并没有属于自己的this。** 它的所谓的 this 是捕获其所在上下文中的 this 值来作为自己的 this 值。并且由于它没有属于自己的 this，同时箭头函数又是不会被 new 调用的，所以这个所谓的箭头函数的 this 也不会被改变。
+
+我们可以用 Babel 理解一下箭头函数:
+
+```js
+// ES6
+const obj = {
+    getArrow() {
+        return () => {
+            console.log(this === obj);
+        };
+    }
+} 
+```
+
+转化后，所谓的『箭头函数的 this 』其实就是 getArrow 函数上下文中的`_this`。
+
+```js
+// ES5，由 Babel 转译
+var obj = {
+    getArrow: function getArrow() {
+        var _this = this;
+        return function () {
+            console.log(_this === obj);
+        };
+    }
+};
+```
 
 ## new
 
@@ -229,195 +426,6 @@ new (Foo.getName());
 ```
 
 对于第一个函数来说，先执行了 `Foo.getName()` ，所以结果为 1；对于后者来说，先执行 `new Foo()` 产生了一个实例，然后通过原型链找到了 `Foo` 上的 `getName` 函数，所以结果为 2。
-
-## instanceof
-
-`instanceof` 可以正确的判断对象的类型，因为内部机制是通过判断对象的原型链中是不是能找到类型的 `prototype`。
-
-我们也可以试着实现一下 `instanceof`
-
-```js
-function instanceof(left, right) {
-    // 获得类型的原型
-    let prototype = right.prototype
-    // 获得对象的原型
-    left = left.__proto__
-    // 判断对象的类型是否等于类型的原型
-    while (true) {
-    	if (left === null)
-    		return false
-    	if (prototype === left)
-    		return true
-    	left = left.__proto__
-    }
-}
-```
-
-## this
-
-`this` 是很多人会混淆的概念，但是其实他一点都不难，你只需要记住几个规则就可以了。
-
-```js
-function foo() {
-	console.log(this.a)
-}
-var a = 1
-foo()
-
-var obj = {
-	a: 2,
-	foo: foo
-}
-obj.foo()
-
-// 以上两者情况 `this` 只依赖于调用函数前的对象，优先级是第二个情况大于第一个情况
-
-// 以下情况是优先级最高的，`this` 只会绑定在 `c` 上，不会被任何方式修改 `this` 指向
-var c = new foo()
-c.a = 3
-console.log(c.a)
-
-// 还有种就是利用 call，apply，bind 改变 this，这个优先级仅次于 new
-```
-
-以上几种情况明白了，很多代码中的 `this` 应该就没什么问题了，下面让我们看看箭头函数中的 `this`
-
-```js
-function a() {
-    return () => {
-        return () => {
-        	console.log(this)
-        }
-    }
-}
-console.log(a()()())
-```
-
-箭头函数其实是没有 `this` 的，这个函数中的 `this` 只取决于他外面的第一个不是箭头函数的函数的 `this`。在这个例子中，因为调用 `a` 符合前面代码中的第一个情况，所以 `this` 是 `window`。并且 `this` 一旦绑定了上下文，就不会被任何代码改变。
-
-## 执行上下文
-
-当执行 JS 代码时，会产生三种执行上下文
-
-- 全局执行上下文
-- 函数执行上下文
-- eval 执行上下文
-
-每个执行上下文中都有三个重要的属性
-
-- 变量对象（VO），包含变量、函数声明和函数的形参，该属性只能在全局上下文中访问
-- 作用域链（JS 采用词法作用域，也就是说变量的作用域是在定义时就决定了）
-- this
-
-```js
-var a = 10
-function foo(i) {
-  var b = 20
-}
-foo()
-```
-
-对于上述代码，执行栈中有两个上下文：全局上下文和函数 `foo` 上下文。
-
-```js
-stack = [
-    globalContext,
-    fooContext
-]
-```
-
-对于全局上下文来说，VO 大概是这样的
-
-```js
-globalContext.VO === globe
-globalContext.VO = {
-    a: undefined,
-	foo: <Function>,
-}
-```
-
-对于函数 `foo` 来说，VO 不能访问，只能访问到活动对象（AO）
-
-```js
-fooContext.VO === foo.AO
-fooContext.AO {
-    i: undefined,
-	b: undefined,
-    arguments: <>
-}
-// arguments 是函数独有的对象(箭头函数没有)
-// 该对象是一个伪数组，有 `length` 属性且可以通过下标访问元素
-// 该对象中的 `callee` 属性代表函数本身
-// `caller` 属性代表函数的调用者
-```
-
-对于作用域链，可以把它理解成包含自身变量对象和上级变量对象的列表，通过 `[[Scope]]` 属性查找上级变量
-
-```js
-fooContext.[[Scope]] = [
-    globalContext.VO
-]
-fooContext.Scope = fooContext.[[Scope]] + fooContext.VO
-fooContext.Scope = [
-    fooContext.VO,
-    globalContext.VO
-]
-```
-
-接下来让我们看一个老生常谈的例子，`var`
-
-```js
-b() // call b
-console.log(a) // undefined
-
-var a = 'Hello world'
-
-function b() {
-	console.log('call b')
-}
-```
-
-想必以上的输出大家肯定都已经明白了，这是因为函数和变量提升的原因。通常提升的解释是说将声明的代码移动到了顶部，这其实没有什么错误，便于大家理解。但是更准确的解释应该是：在生成执行上下文时，会有两个阶段。第一个阶段是创建的阶段（具体步骤是创建 VO），JS 解释器会找出需要提升的变量和函数，并且给他们提前在内存中开辟好空间，函数的话会将整个函数存入内存中，变量只声明并且赋值为 undefined，所以在第二个阶段，也就是代码执行阶段，我们可以直接提前使用。
-
-在提升的过程中，相同的函数会覆盖上一个函数，并且函数优先于变量提升
-
-```js
-b() // call b second
-
-function b() {
-	console.log('call b fist')
-}
-function b() {
-	console.log('call b second')
-}
-var b = 'Hello world'
-```
-
-`var` 会产生很多错误，所以在 ES6中引入了 `let`。`let` 不能在声明前使用，但是这并不是常说的 `let` 不会提升，`let` 提升了声明但没有赋值，因为临时死区导致了并不能在声明前使用。
-
-对于非匿名的立即执行函数需要注意以下一点
-
-```js
-var foo = 1
-(function foo() {
-    foo = 10
-    console.log(foo)
-}()) // -> ƒ foo() { foo = 10 ; console.log(foo) }
-```
-
-因为当 JS 解释器在遇到非匿名的立即执行函数时，会创建一个辅助的特定对象，然后将函数名称作为这个对象的属性，因此函数内部才可以访问到 `foo`，但是这个值又是只读的，所以对它的赋值并不生效，所以打印的结果还是这个函数，并且外部的值也没有发生更改。
-
-```js
-specialObject = {};
-
-Scope = specialObject + Scope;
-
-foo = new FunctionExpression;
-foo.[[Scope]] = Scope;
-specialObject.foo = foo; // {DontDelete}, {ReadOnly}
-
-delete Scope[0]; // remove specialObject from the front of scope chain
-```
 
 ## 闭包
 
@@ -1035,310 +1043,6 @@ Function.prototype.myBind = function (context) {
 }
 ```
 
-## Promise 实现
-
-Promise 是 ES6 新增的语法，解决了回调地狱的问题。
-
-可以把 Promise 看成一个状态机。初始是 `pending` 状态，可以通过函数 `resolve` 和 `reject` ，将状态转变为 `resolved` 或者 `rejected` 状态，状态一旦改变就不能再次变化。
-
-`then` 函数会返回一个 Promise 实例，并且该返回值是一个新的实例而不是之前的实例。因为 Promise 规范规定除了 `pending` 状态，其他状态是不可以改变的，如果返回的是一个相同实例的话，多个 `then` 调用就失去意义了。
-
-对于 `then` 来说，本质上可以把它看成是 `flatMap`
-
-```js
-// 三种状态
-const PENDING = "pending";
-const RESOLVED = "resolved";
-const REJECTED = "rejected";
-// promise 接收一个函数参数，该函数会立即执行
-function MyPromise(fn) {
-  let _this = this;
-  _this.currentState = PENDING;
-  _this.value = undefined;
-  // 用于保存 then 中的回调，只有当 promise
-  // 状态为 pending 时才会缓存，并且每个实例至多缓存一个
-  _this.resolvedCallbacks = [];
-  _this.rejectedCallbacks = [];
-
-  _this.resolve = function (value) {
-    if (value instanceof MyPromise) {
-      // 如果 value 是个 Promise，递归执行
-      return value.then(_this.resolve, _this.reject)
-    }
-    setTimeout(() => { // 异步执行，保证执行顺序
-      if (_this.currentState === PENDING) {
-        _this.currentState = RESOLVED;
-        _this.value = value;
-        _this.resolvedCallbacks.forEach(cb => cb());
-      }
-    })
-  };
-
-  _this.reject = function (reason) {
-    setTimeout(() => { // 异步执行，保证执行顺序
-      if (_this.currentState === PENDING) {
-        _this.currentState = REJECTED;
-        _this.value = reason;
-        _this.rejectedCallbacks.forEach(cb => cb());
-      }
-    })
-  }
-  // 用于解决以下问题
-  // new Promise(() => throw Error('error))
-  try {
-    fn(_this.resolve, _this.reject);
-  } catch (e) {
-    _this.reject(e);
-  }
-}
-
-MyPromise.prototype.then = function (onResolved, onRejected) {
-  var self = this;
-  // 规范 2.2.7，then 必须返回一个新的 promise
-  var promise2;
-  // 规范 2.2.onResolved 和 onRejected 都为可选参数
-  // 如果类型不是函数需要忽略，同时也实现了透传
-  // Promise.resolve(4).then().then((value) => console.log(value))
-  onResolved = typeof onResolved === 'function' ? onResolved : v => v;
-  onRejected = typeof onRejected === 'function' ? onRejected : r => throw r;
-
-  if (self.currentState === RESOLVED) {
-    return (promise2 = new MyPromise(function (resolve, reject) {
-      // 规范 2.2.4，保证 onFulfilled，onRjected 异步执行
-      // 所以用了 setTimeout 包裹下
-      setTimeout(function () {
-        try {
-          var x = onResolved(self.value);
-          resolutionProcedure(promise2, x, resolve, reject);
-        } catch (reason) {
-          reject(reason);
-        }
-      });
-    }));
-  }
-
-  if (self.currentState === REJECTED) {
-    return (promise2 = new MyPromise(function (resolve, reject) {
-      setTimeout(function () {
-        // 异步执行onRejected
-        try {
-          var x = onRejected(self.value);
-          resolutionProcedure(promise2, x, resolve, reject);
-        } catch (reason) {
-          reject(reason);
-        }
-      });
-    }));
-  }
-
-  if (self.currentState === PENDING) {
-    return (promise2 = new MyPromise(function (resolve, reject) {
-      self.resolvedCallbacks.push(function () {
-        // 考虑到可能会有报错，所以使用 try/catch 包裹
-        try {
-          var x = onResolved(self.value);
-          resolutionProcedure(promise2, x, resolve, reject);
-        } catch (r) {
-          reject(r);
-        }
-      });
-
-      self.rejectedCallbacks.push(function () {
-        try {
-          var x = onRejected(self.value);
-          resolutionProcedure(promise2, x, resolve, reject);
-        } catch (r) {
-          reject(r);
-        }
-      });
-    }));
-  }
-};
-// 规范 2.3
-function resolutionProcedure(promise2, x, resolve, reject) {
-  // 规范 2.3.1，x 不能和 promise2 相同，避免循环引用
-  if (promise2 === x) {
-    return reject(new TypeError("Error"));
-  }
-  // 规范 2.3.2
-  // 如果 x 为 Promise，状态为 pending 需要继续等待否则执行
-  if (x instanceof MyPromise) {
-    if (x.currentState === PENDING) {
-      x.then(function (value) {
-        // 再次调用该函数是为了确认 x resolve 的
-        // 参数是什么类型，如果是基本类型就再次 resolve
-        // 把值传给下个 then
-        resolutionProcedure(promise2, value, resolve, reject);
-      }, reject);
-    } else {
-      x.then(resolve, reject);
-    }
-    return;
-  }
-  // 规范 2.3.3.3.3
-  // reject 或者 resolve 其中一个执行过得话，忽略其他的
-  let called = false;
-  // 规范 2.3.3，判断 x 是否为对象或者函数
-  if (x !== null && (typeof x === "object" || typeof x === "function")) {
-    // 规范 2.3.3.2，如果不能取出 then，就 reject
-    try {
-      // 规范 2.3.3.1
-      let then = x.then;
-      // 如果 then 是函数，调用 x.then
-      if (typeof then === "function") {
-        // 规范 2.3.3.3
-        then.call(
-          x,
-          y => {
-            if (called) return;
-            called = true;
-            // 规范 2.3.3.3.1
-            resolutionProcedure(promise2, y, resolve, reject);
-          },
-          e => {
-            if (called) return;
-            called = true;
-            reject(e);
-          }
-        );
-      } else {
-        // 规范 2.3.3.4
-        resolve(x);
-      }
-    } catch (e) {
-      if (called) return;
-      called = true;
-      reject(e);
-    }
-  } else {
-    // 规范 2.3.4，x 为基本类型
-    resolve(x);
-  }
-}
-```
-
-以上就是根据 Promise / A+ 规范来实现的代码，可以通过 `promises-aplus-tests` 的完整测试
-
-![img](https://yck-1254263422.cos.ap-shanghai.myqcloud.com/blog/2019-06-01-043726.png)
-
-## Generator 实现
-
-Generator 是 ES6 中新增的语法，和 Promise 一样，都可以用来异步编程
-
-```js
-// 使用 * 表示这是一个 Generator 函数
-// 内部可以通过 yield 暂停代码
-// 通过调用 next 恢复执行
-function* test() {
-  let a = 1 + 2;
-  yield 2;
-  yield 3;
-}
-let b = test();
-console.log(b.next()); // >  { value: 2, done: false }
-console.log(b.next()); // >  { value: 3, done: false }
-console.log(b.next()); // >  { value: undefined, done: true }
-```
-
-从以上代码可以发现，加上 `*` 的函数执行后拥有了 `next` 函数，也就是说函数执行后返回了一个对象。每次调用 `next` 函数可以继续执行被暂停的代码。以下是 Generator 函数的简单实现
-
-```js
-// cb 也就是编译过的 test 函数
-function generator(cb) {
-  return (function() {
-    var object = {
-      next: 0,
-      stop: function() {}
-    };
-
-    return {
-      next: function() {
-        var ret = cb(object);
-        if (ret === undefined) return { value: undefined, done: true };
-        return {
-          value: ret,
-          done: false
-        };
-      }
-    };
-  })();
-}
-// 如果你使用 babel 编译后可以发现 test 函数变成了这样
-function test() {
-  var a;
-  return generator(function(_context) {
-    while (1) {
-      switch ((_context.prev = _context.next)) {
-        // 可以发现通过 yield 将代码分割成几块
-        // 每次执行 next 函数就执行一块代码
-        // 并且表明下次需要执行哪块代码
-        case 0:
-          a = 1 + 2;
-          _context.next = 4;
-          return 2;
-        case 4:
-          _context.next = 6;
-          return 3;
-		// 执行完毕
-        case 6:
-        case "end":
-          return _context.stop();
-      }
-    }
-  });
-}
-```
-
-## Map、FlatMap 和 Reduce
-
-`Map` 作用是生成一个新数组，遍历原数组，将每个元素拿出来做一些变换然后 `append` 到新的数组中。
-
-```js
-[1, 2, 3].map((v) => v + 1)
-// -> [2, 3, 4]
-```
-
-`Map` 有三个参数，分别是当前索引元素，索引，原数组
-
-```js
-['1','2','3'].map(parseInt)
-//  parseInt('1', 0) -> 1
-//  parseInt('2', 1) -> NaN
-//  parseInt('3', 2) -> NaN
-```
-
-`FlatMap` 和 `map` 的作用几乎是相同的，但是对于多维数组来说，会将原数组降维。可以将 `FlatMap` 看成是 `map` + `flatten` ，目前该函数在浏览器中还不支持。
-
-```js
-[1, [2], 3].flatMap((v) => v + 1)
-// -> [2, 3, 4]
-```
-
-如果想将一个多维数组彻底的降维，可以这样实现
-
-```js
-const flattenDeep = (arr) => Array.isArray(arr)
-  ? arr.reduce( (a, b) => [...a, ...flattenDeep(b)] , [])
-  : [arr]
-
-flattenDeep([1, [[2], [3, [4]], 5]])
-```
-
-`Reduce` 作用是数组中的值组合起来，最终得到一个值
-
-```js
-function a() {
-    console.log(1);
-}
-
-function b() {
-    console.log(2);
-}
-
-[a, b].reduce((a, b) => a(b()))
-// -> 2 1
-```
-
 ## async 和 await
 
 一个函数如果加上 `async` ，那么该函数就会返回一个 `Promise`
@@ -1488,52 +1192,3 @@ parseFloat((0.1 + 0.2).toFixed(10))
 |  \D  |      和上面相反      |
 |  \b  | 匹配单词的开始或结束 |
 |  \B  |      和上面相反      |
-
-## V8 下的垃圾回收机制
-
-V8 实现了准确式 GC，GC 算法采用了分代式垃圾回收机制。因此，V8 将内存（堆）分为新生代和老生代两部分。
-
-### 新生代算法
-
-新生代中的对象一般存活时间较短，使用 Scavenge GC 算法。
-
-在新生代空间中，内存空间分为两部分，分别为 From 空间和 To 空间。在这两个空间中，必定有一个空间是使用的，另一个空间是空闲的。新分配的对象会被放入 From 空间中，当 From 空间被占满时，新生代 GC 就会启动了。算法会检查 From 空间中存活的对象并复制到 To 空间中，如果有失活的对象就会销毁。当复制完成后将 From 空间和 To 空间互换，这样 GC 就结束了。
-
-### 老生代算法
-
-老生代中的对象一般存活时间较长且数量也多，使用了两个算法，分别是标记清除算法和标记压缩算法。
-
-在讲算法前，先来说下什么情况下对象会出现在老生代空间中：
-
-- 新生代中的对象是否已经经历过一次 Scavenge 算法，如果经历过的话，会将对象从新生代空间移到老生代空间中。
-- To 空间的对象占比大小超过 25 %。在这种情况下，为了不影响到内存分配，会将对象从新生代空间移到老生代空间中。
-
-老生代中的空间很复杂，有如下几个空间
-
-```text
-enum AllocationSpace {
-  // TODO(v8:7464): Actually map this space's memory as read-only.
-  RO_SPACE,    // 不变的对象空间
-  NEW_SPACE,   // 新生代用于 GC 复制算法的空间
-  OLD_SPACE,   // 老生代常驻对象空间
-  CODE_SPACE,  // 老生代代码对象空间
-  MAP_SPACE,   // 老生代 map 对象
-  LO_SPACE,    // 老生代大空间对象
-  NEW_LO_SPACE,  // 新生代大空间对象
-
-  FIRST_SPACE = RO_SPACE,
-  LAST_SPACE = NEW_LO_SPACE,
-  FIRST_GROWABLE_PAGED_SPACE = OLD_SPACE,
-  LAST_GROWABLE_PAGED_SPACE = MAP_SPACE
-};
-```
-
-在老生代中，以下情况会先启动标记清除算法：
-
-- 某一个空间没有分块的时候
-- 空间中被对象超过一定限制
-- 空间不能保证新生代中的对象移动到老生代中
-
-在这个阶段中，会遍历堆中所有的对象，然后标记活的对象，在标记完成后，销毁所有没有被标记的对象。在标记大型对内存时，可能需要几百毫秒才能完成一次标记。这就会导致一些性能上的问题。为了解决这个问题，2011 年，V8 从 stop-the-world 标记切换到增量标志。在增量标记期间，GC 将标记工作分解为更小的模块，可以让 JS 应用逻辑在模块间隙执行一会，从而不至于让应用出现停顿情况。但在 2018 年，GC 技术又有了一个重大突破，这项技术名为并发标记。该技术可以让 GC 扫描和标记对象时，同时允许 JS 运行，你可以点击 [该博客](https://v8project.blogspot.com/2018/06/concurrent-marking.html) 详细阅读。
-
-清除对象后会造成堆内存出现碎片的情况，当碎片超过一定限制后会启动压缩算法。在压缩过程中，将活的对象像一端移动，直到所有对象都移动完成然后清理掉不需要的内存。
