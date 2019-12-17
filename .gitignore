@@ -8,6 +8,7 @@ yarn-error.log*
 
 # Node modules and dist files
 node_modules/
+dist/
 .temp/
 
 .DS_Store
