@@ -16,6 +16,7 @@ const frontend =  [
     children: [
       // ['/frontend/Vue/', 'Vue'],
       // ['/frontend/React/', 'React'],
+      '/frontend/Framework/',
       '/frontend/Vue/',
       '/frontend/React/',
     ],

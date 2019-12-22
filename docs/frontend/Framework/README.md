@@ -1,19 +1,19 @@
-# 框架通识
+# 通识
 
 ## MVVM
 
 ### 概念理解
-MVVM 模式，顾名思义即 **Model-View-ViewModel** 模式。
+MVVM 即 **Model-View-ViewModel** 模式。
 
-它由三个部分组成：
-
-1. Model 层
+1. **Model 层**
 
      对应数据层的域模型，它主要做域模型的同步。通过 Ajax/fetch 等 API 完成客户端和服务端业务 Model 的同步。在层间关系里，它主要用于抽象出 ViewModel 中视图的 Model。
-2. View 层
+
+2. **View 层**
 
     作为视图模板存在，在 MVVM 里，整个 View 是一个动态模板。除了定义界面的结构、布局外，它更是 ViewModel 层的数据和状态展示的地方。View 层不负责处理状态，View 层做的是 数据绑定的声明、 指令的声明、 事件绑定的声明。
-3. ViewModel 层
+
+3. **ViewModel 层**
     
     把 View 需要的层数据暴露，并对 View 层的 数据绑定声明、 指令声明、 事件绑定声明 负责，也就是处理 View 层的具体业务逻辑。ViewModel 底层会做好绑定属性的监听。当 ViewModel 中数据变化，View 层会得到更新；而当 View 中声明了数据的双向绑定（通常是表单元素），框架也会监听 View 层（表单）值的变化。一旦值变化，View 层绑定的 ViewModel 中的数据也会得到自动更新。
 
@@ -26,6 +26,8 @@ MVVM 模式，顾名思义即 **Model-View-ViewModel** 模式。
 ViewModel 只关心数据和业务的处理，不关心 View 如何处理数据，在这种情况下，View 和 Model 都可以独立出来，任何一方改变了也不一定需要改变另一方，并且可以将一些可复用的逻辑放在一个 ViewModel 中，让多个 View 复用这个 ViewModel。
 
 在 MVVM 中，最核心的也就是数据双向绑定，例如 Angluar 的脏数据检测，Vue 中的数据劫持。
+
+todo: 双向绑定的实现原理
 
 ### MVVM的优缺点?
 优点:

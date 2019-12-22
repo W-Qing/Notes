@@ -1,14 +1,11 @@
 # JavaScript
 
-## 内置类型
+## 内置数据类型
 
-**JS 中分为七种内置类型，七种内置类型又分为两大类型：基本类型和对象（Object）。**
+**JS 中分为七种内置类型，七种内置类型又分为两大类型：基本类型和引用数据类型（Object）。**
 
 **基本类型有六种： null，undefined，boolean，number，string，symbol。**
 
-> 其中 JS 的数字类型是浮点类型的，没有整型。
->
-> 并且浮点类型基于 IEEE 754 标准实现，在使用中会遇到某些 Bug。
 >
 > NaN 也属于 number 类型，并且 NaN 不等于自身。
 >
@@ -29,13 +26,16 @@ let b = a
 b.name = 'EF'
 console.log(a.name) // EF
 ```
-## null与undefined的区别？
+**null与undefined的区别？**
 
-null表示为空，代表此处不应该有值的存在，一个对象可以是null，代表是个空对象，而null本身也是对象。
+- **null 表示为空，代表此处不应该有值的存在。** 一个对象可以是 null，代表是个空对象，而 null 本身也是对象。
+- **undefined 表示『不存在』。** JavaScript 是一门动态类型语言，成员除了表示存在的空值外，还有可能根本就不存在（因为存不存在只有在运行时才知道），这就是 undefined 的意义所在。
 
-undefined表示『不存在』，JavaScript是一门动态类型语言，成员除了表示存在的空值外，还有可能根本就不存在（因为存不存在只在运行期才知道），这就是undefined的意义所在。
+## 数据类型判断
 
-## typeof
+在写业务逻辑的时候，经常要用到 JS 数据类型的判断，面试常见的案例深浅拷贝也要用到数据类型的判断。
+
+### 1. typeof
 
 使用`typeof`能够快速区分出 Null 之外的各种基本数据类型。
 
@@ -44,13 +44,13 @@ typeof 1 // 'number'
 typeof '1' // 'string'
 typeof undefined // 'undefined'
 typeof true // 'boolean'
-typeof Symbol() // 'symbol'
+typeof Symbol() // 'symbol' es6 新增
 typeof b // b 没有声明，但是还会显示 undefined
 ```
 而`typeof` 对于对象，除了函数都会显示 `object`。
 
 ```js
-typeof [] // 'object'
+typeof [] // 'object'  对于数组的判断，还可以使用 es6 新增的 Array.isArray()
 typeof {} // 'object'
 typeof console.log // 'function'
 ```
@@ -65,9 +65,11 @@ typeof null // 'object'
 >
 > 因为在 JS 的最初版本中，使用的是 32 位系统，为了性能考虑使用低位存储了变量的类型信息，`000` 开头代表是对象，然而 `null` 表示为全零，所以将它错误的判断为 `object` 。虽然现在的内部类型判断代码已经改变了，但是对于这个 Bug 却是一直流传下来。
 
-## instanceof
+### 2. instanceof
 
-使用`instanceof` 可以正确的判断对象的类型，因为内部机制是通过判断对象的[原型链](/frontend/JavaScript/#原型)中是不是能找到类型的 `prototype`。
+使用`instanceof` 可以正确的判断对象的类型。
+
+> 其内部机制是通过查找对象的[原型链](/frontend/JavaScript/#原型)，看是否能找到构造函数的原型对象 `prototype`从而来判断对象类型。
 
 优点：能够区分Array、Object和Function，适合用于判断自定义的类实例对象 
 
@@ -104,6 +106,8 @@ function instanceof(left, right) {
 }
 ```
 
+### 3. Object.prototype.toString.call(xx)
+
 **如果我们想正确获得一个变量的类型，可以通过 `Object.prototype.toString.call(xx)`。**
 
 ```js
@@ -117,31 +121,13 @@ Object.prototype.toString.call(undefined) //[object Undefined]
 Object.prototype.toString.call(null)			//[object Null]
 ```
 
-我们就可以获得类似 `[object Type]` 的字符串。从而可以精准判断数据的类型，但是这种写法繁琐不容易记，推荐进行封装后使用。
+这样我们就可以获得一个类似 `[object Type]` 的字符串，从而可以精准判断数据的类型。但是这种写法繁琐不容易记，推荐进行封装后使用。
 
-```js
-// 我们也可以这样判断 undefined
-let a
-a === undefined
+## 数据类型转换
 
-// 但是 undefined 不是保留字，在低版本浏览器能够被重新赋值
-let undefined = 1
-// 这样 === 的判断就会出错
-// 所以可以用下面的方式来判断，并且代码量更少
-a === void 0
-// 因为 void 后面随便跟上一个组成表达式
-// 返回就是 undefined
-```
-
-## 类型转换
-
-类型转换分为显式转换和隐式转换，但不管是哪一种方式，转换时都会遵循一定的规则原理。由于JavaScript是一门动态类型的语言，可以随时给变量赋予任意值，但是各种运算符或条件判断时是需要知道变量的特定类型的，因此JavaScript引擎会在运算时为变量设定类型。
+由于JavaScript是一门动态类型的语言，可以随时给变量赋予任意值，但是各种运算符或条件判断时是需要知道变量的特定类型的，因此 JavaScript 引擎会在运算时为变量设定类型。
 
 这看起来很美好，JavaScript引擎帮我们搞定了变量类型的问题，但是引擎毕竟不是ASI(超级人工智能)，如果我们不了解这些转换规则，那么它的很多动作往往会跟我们预期相去甚远。
-
-### 转Boolean
-
-在条件判断时，除了 `undefined`， `null`， `false`， `NaN`， `''`， `0`， `-0`，其他所有值都转为 `true`，包括所有对象。
 
 ### 对象转基本类型
 
@@ -172,6 +158,10 @@ let a = {
 1 + a // => 3
 '1' + a // => '12'
 ```
+
+### 转Boolean
+
+在条件判断时，除了 `undefined`， `null`， `false`， `NaN`， `''`， `0`， `-0`，其他所有值都转为 `true`，包括所有对象。
 
 ### 四则运算符
 
@@ -1140,7 +1130,7 @@ p.a // -> Get 'a' = 2
 
 ## 为什么 0.1 + 0.2 != 0.3
 
-因为 JS 采用 IEEE 754 双精度版本（64位），并且只要采用 IEEE 754 的语言都有该问题。
+因为 JS 的数字类型是浮点类型的，没有整型。 而浮点类型是基于 IEEE 754 双精度版本（64位）标准实现的，只要采用 IEEE 754 的语言都有该问题。
 
 我们都知道计算机表示十进制是采用二进制表示的，所以 `0.1` 在二进制表示为
 
