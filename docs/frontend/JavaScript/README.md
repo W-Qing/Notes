@@ -27,20 +27,24 @@ b.name = 'EF'
 console.log(a.name) // EF
 ```
 
-> 
-> **null与undefined的区别？**
-> 
-> 1. **null 表示为空，代表此处不应该有值的存在。** 一个对象可以是 null，代表是个空对象，而 null 本身也是对象。
-> 2. **undefined 表示『不存在』。** JavaScript 是一门动态类型语言，成员除了表示存在的空值外，还有可能根本就不存在（因为存不存在只有在运行时才知道），这就是 undefined 的意义所在。
-> 
-> Undefined类型只有一个值，即undefined。当声明的变量还未被初始化时，变量的默认值为undefined。用法：
-> 变量被声明了，但没有赋值时，就等于undefined。
-> 调用函数时，应该提供的参数没有提供，该参数等于undefined。
-> 对象没有赋值的属性，该属性的值为undefined。
-> 函数没有返回值时，默认返回undefined。
-> Null类型也只有一个值，即null。null用来表示尚未存在的对象，常用来表示函数企图返回一个不存在的对象。用法
-> 作为函数的参数，表示该函数的参数不是对象。
-> 作为对象原型链的终点。
+**拓展：null 与 undefined 的区别？**
+
+> **null 表示为空，代表此处不应该有值的存在。**
+>
+>  一个对象可以是 null，代表是个空对象，而 null 本身也是对象。常用来表示函数企图返回一个不存在的对象。用法：
+>
+> 1. 作为函数的参数，表示该函数的参数不是对象。
+> 2. 作为对象原型链的终点。
+>
+> **undefined 表示『不存在』。**
+>
+>  JavaScript 是一门动态类型语言，成员除了表示存在的空值外，还有可能根本就不存在（因为存不存在只有在运行时才知道），这就是 undefined 的意义所在。用法：
+>
+> 1. 当声明的变量还未被初始化时，变量的默认值为 undefined。
+> 2. 调用函数时，应该提供的参数没有提供，该参数等于undefined。
+> 3. 对象没有赋值的属性，该属性的值为 undefined。
+> 4. 函数没有返回值时，默认返回undefined。
+>    
 
 
 ## 数据类型判断
@@ -367,12 +371,14 @@ var obj = {
 
 ## new
 
+我们在调用 `new` 的过程中会发生以下四件事情：
+
 1. 新生成了一个对象
 2. 链接到原型
 3. 绑定 this
 4. 返回新对象
 
-在调用 `new` 的过程中会发生以上四件事情，我们也可以试着来自己实现一个 `new`
+我们也可以试着来自己实现一个 `new`
 
 ```js
 function create() {
@@ -431,7 +437,13 @@ new (Foo.getName());
 
 ## 闭包
 
-闭包的定义很简单：函数 A 返回了一个函数 B，并且函数 B 中使用了函数 A 的变量，函数 B 就被称为闭包。
+**闭包是什么？**
+
+直接看[MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures)的解释：闭包是**函数**和**声明该函数的词法环境**的组合。
+
+怎么理解呢？
+
+函数 A 返回了一个函数 B，并且函数 B 中使用了函数 A 的变量，函数 B 就被称为闭包。
 
 ```js
 function A() {
@@ -441,9 +453,25 @@ function A() {
   }
   return B
 }
+var test = A()
+test() // 1
+// 或者是A()()、(A())()
 ```
 
-你是否会疑惑，为什么函数 A 已经弹出调用栈了，为什么函数 B 还能引用到函数 A 中的变量。因为函数 A 中的变量这时候是存储在堆上的。现在的 JS 引擎可以通过逃逸分析辨别出哪些变量需要存储在堆上，哪些需要存储在栈上。
+为什么函数 A 已经弹出调用栈了，为什么函数 B 还能引用到函数 A 中的变量？这是因为函数 A 中的变量此时是存储在堆上的。而现在的 JS 引擎可以通过逃逸分析辨别出哪些变量需要存储在堆上，哪些需要存储在栈上。
+
+> 在 JavaScript 中，函数是被作为一级对象使用的，它既可以被当作值返回，还可以当作参数传递。
+>
+> 理解：“**Js 中的函数运行在它们被定义的作用域，而不是它们被执行的作用域**”（《JavaScript 语言精粹》） 这句话即可。
+
+**闭包有什么作用？**
+
+由上面的🌰可知，闭包最大的作用就是隐藏变量，闭包的一大特性就是**内部函数总是可以访问其所在的外部函数中声明的参数和变量，即使在其外部函数被返回（寿命终结）了之后。**即保护变量不受外界污染，使其一直存在于内存中。基于此特性，JavaScript可以实现私有变量、特权变量、储存变量等。
+
+> 闭包封住了变量作用域，有效地防止了全局污染，但同时，它也存在**内存泄漏**的风险：
+>
+> - 在浏览器端可以通过强制刷新解决，对用户体验影响不大
+> - 在服务端，由于 node 的内存限制和累积效应，可能会造成进程退出甚至服务器沓机
 
 经典面试题，循环中使用闭包解决 `var` 定义函数的问题
 
@@ -457,7 +485,9 @@ for ( var i=1; i<=5; i++) {
 
 首先因为 `setTimeout` 是个异步函数，所有会先把循环全部执行完毕，这时候 `i` 就是 6 了，所以会输出一堆 6。
 
-解决办法两种，第一种使用闭包
+如果不使用 `let` 定义 `i` ，那么一般有两种解决办法。
+
+第一种使用闭包：
 
 ```js
 for (var i = 1; i <= 5; i++) {
@@ -469,46 +499,13 @@ for (var i = 1; i <= 5; i++) {
 }
 ```
 
-第二种就是使用 `setTimeout` 的第三个参数
+第二种就是使用 `setTimeout` 的第三个参数：
 
 ```js
 for ( var i=1; i<=5; i++) {
 	setTimeout( function timer(j) {
 		console.log( j );
 	}, i*1000, i);
-}
-```
-
-第三种就是使用 `let` 定义 `i` 了
-
-```js
-for ( let i=1; i<=5; i++) {
-	setTimeout( function timer() {
-		console.log( i );
-	}, i*1000 );
-}
-```
-
-因为对于 `let` 来说，他会创建一个块级作用域，相当于
-
-```js
-{ // 形成块级作用域
-  let i = 0
-  {
-    let ii = i
-    setTimeout( function timer() {
-        console.log( ii );
-    }, i*1000 );
-  }
-  i++
-  {
-    let ii = i
-  }
-  i++
-  {
-    let ii = i
-  }
-  ...
 }
 ```
 
@@ -551,7 +548,7 @@ a.age = 2
 console.log(b.age) // 1
 ```
 
-通常浅拷贝就能解决大部分问题了，但是当我们遇到如下情况就需要使用到深拷贝了
+通常浅拷贝就能解决大部分问题了，但是当我们遇到如下情况：
 
 ```js
 let a = {
@@ -565,7 +562,7 @@ a.jobs.first = 'native'
 console.log(b.jobs.first) // native
 ```
 
-浅拷贝只解决了第一层的问题，如果接下去的值中还有对象的话，那么就又回到刚开始的话题了，两者享有相同的引用。要解决这个问题，我们需要引入深拷贝。
+浅拷贝只解决了第一层的问题，如果接下去的值中还有对象的话，那么就又回到最初的问题了，两者享有相同的引用。要解决这个问题，我们就需要使用深拷贝遍历对象中的每一个属性。
 
 ### 深拷贝
 
@@ -626,113 +623,11 @@ console.log(b) // {name: "yck"}
 
 你会发现在上述情况中，该方法会忽略掉函数和 `undefined` 。
 
-但是在通常情况下，复杂数据都是可以序列化的，所以这个函数可以解决大部分问题，并且该函数是内置函数中处理深拷贝性能最快的。当然如果你的数据中含有以上三种情况下，可以使用 [lodash 的深拷贝函数](https://lodash.com/docs##cloneDeep)。
+但是在通常情况下，复杂数据都是可以序列化的，所以这个函数可以解决大部分问题，并且该函数是内置函数中处理深拷贝性能最快的。当然如果你的数据中含有以上三种情况，可以使用 [lodash 的深拷贝函数](https://lodash.com/docs##cloneDeep)。
 
-如果你所需拷贝的对象含有内置类型并且不包含函数，可以使用 `MessageChannel`
+## 防抖与节流
 
-```js
-function structuralClone(obj) {
-  return new Promise(resolve => {
-    const {port1, port2} = new MessageChannel();
-    port2.onmessage = ev => resolve(ev.data);
-    port1.postMessage(obj);
-  });
-}
-
-var obj = {a: 1, b: {
-    c: b
-}}
-// 注意该方法是异步的
-// 可以处理 undefined 和循环引用对象
-(async () => {
-  const clone = await structuralClone(obj)
-})()
-```
-
-## 模块化
-
-在有 Babel 的情况下，我们可以直接使用 ES6 的模块化
-
-```js
-// file a.js
-export function a() {}
-export function b() {}
-// file b.js
-export default function() {}
-
-import {a, b} from './a.js'
-import XXX from './b.js'
-```
-
-### CommonJS
-
-`CommonJs` 是 Node 独有的规范，浏览器中使用就需要用到 `Browserify` 解析了。
-
-```js
-// a.js
-module.exports = {
-    a: 1
-}
-// or
-exports.a = 1
-
-// b.js
-var module = require('./a.js')
-module.a // -> log 1
-```
-
-在上述代码中，`module.exports` 和 `exports` 很容易混淆，让我们来看看大致内部实现
-
-```js
-var module = require('./a.js')
-module.a
-// 这里其实就是包装了一层立即执行函数，这样就不会污染全局变量了，
-// 重要的是 module 这里，module 是 Node 独有的一个变量
-module.exports = {
-    a: 1
-}
-// 基本实现
-var module = {
-  exports: {} // exports 就是个空对象
-}
-// 这个是为什么 exports 和 module.exports 用法相似的原因
-var exports = module.exports
-var load = function (module) {
-    // 导出的东西
-    var a = 1
-    module.exports = a
-    return module.exports
-};
-```
-
-再来说说 `module.exports` 和 `exports`，用法其实是相似的，但是不能对 `exports` 直接赋值，不会有任何效果。
-
-对于 `CommonJS` 和 ES6 中的模块化的两者区别是：
-
-- 前者支持动态导入，也就是 `require(${path}/xx.js)`，后者目前不支持，但是已有提案
-- 前者是同步导入，因为用于服务端，文件都在本地，同步导入即使卡住主线程影响也不大。而后者是异步导入，因为用于浏览器，需要下载文件，如果也采用同步导入会对渲染有很大影响
-- 前者在导出时都是值拷贝，就算导出的值变了，导入的值也不会改变，所以如果想更新值，必须重新导入一次。但是后者采用实时绑定的方式，导入导出的值都指向同一个内存地址，所以导入值会跟随导出值变化
-- 后者会编译成 `require/exports` 来执行的
-
-### AMD
-
-AMD 是由 `RequireJS` 提出的
-
-```js
-// AMD
-define(['./a', './b'], function(a, b) {
-    a.do()
-    b.do()
-})
-define(function(require, exports, module) {
-    var a = require('./a')
-    a.doSomething()
-    var b = require('./b')
-    b.doSomething()
-})
-```
-
-## 防抖
+### 防抖
 
 你是否在日常开发中遇到一个问题，在滚动事件中需要做个复杂计算或者实现一个按钮的防二次点击操作。
 
@@ -824,7 +719,7 @@ function debounce (func, wait = 50, immediate = true) {
 - 对于按钮防点击来说的实现：如果函数是立即执行的，就立即调用，如果函数是延迟执行的，就缓存上下文和参数，放到延迟函数中去执行。一旦我开始一个定时器，只要我定时器还在，你每次点击我都重新计时。一旦你点累了，定时器时间到，定时器重置为 `null`，就可以再次点击了。
 - 对于延时执行函数来说的实现：清除定时器ID，如果是延迟调用就调用函数
 
-## 节流
+### 节流
 
 防抖动和节流本质是不一样的。防抖动是将多次执行变为最后一次执行，节流是将多次执行变成每隔一段时间执行。
 
