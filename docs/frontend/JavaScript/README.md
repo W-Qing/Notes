@@ -1,5 +1,7 @@
 # JavaScript
 
+**🔞 有啥问题最好先滚去看一下文档👉 [MDN JavaScript文档](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript)**
+
 ## 内置数据类型
 
 **JS 中分为七种内置类型，七种内置类型又分为两大类型：基本类型和引用数据类型（Object）。**
@@ -437,9 +439,11 @@ new (Foo.getName());
 
 ## 闭包
 
+闭包是 JavaScript 中最强大的抽象概念之一，但它也是最容易造成困惑的。
+
 **闭包是什么？**
 
-直接看[MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures)的解释：闭包是**函数**和**声明该函数的词法环境**的组合。
+[MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures)对它的解释：**闭包是函数和声明该函数的词法环境的组合**。
 
 怎么理解呢？
 
@@ -615,10 +619,10 @@ let a = {
     age: undefined,
     sex: Symbol('male'),
     jobs: function() {},
-    name: 'yck'
+    name: 'mintnoii'
 }
 let b = JSON.parse(JSON.stringify(a))
-console.log(b) // {name: "yck"}
+console.log(b) // {name: "mintnoii"}
 ```
 
 你会发现在上述情况中，该方法会忽略掉函数和 `undefined` 。
@@ -853,7 +857,7 @@ Object.setPrototypeOf(MyData.prototype, Date.prototype)
 
 通过以上方法实现的继承就可以完美解决 JS 底层的这个限制。
 
-## call, apply, bind 区别
+## call、apply、bind
 
 首先说下前两者的区别。
 
@@ -870,8 +874,8 @@ function getValue(name, age) {
     console.log(age)
     console.log(this.value)
 }
-getValue.call(a, 'yck', '24')
-getValue.apply(a, ['yck', '24'])
+getValue.call(a, 'mintnoii', '22')
+getValue.apply(a, ['mintnoii', '22'])
 ```
 
 ### 模拟实现 call 和 apply
@@ -879,19 +883,23 @@ getValue.apply(a, ['yck', '24'])
 可以从以下几点来考虑如何实现
 
 - 不传入第一个参数，那么默认为 `window`
-- 改变了 this 指向，让新的对象可以执行该函数。那么思路是否可以变成给新的对象添加一个函数，然后在执行完以后删除？
+- 改变了 this 指向，让新的对象可以执行该函数。那么思路可以变成给新的对象添加一个函数，然后在执行完以后删除
 
 ```js
 Function.prototype.myCall = function (context) {
   var context = context || window
-  // 给 context 添加一个属性
-  // getValue.call(a, 'yck', '24') => a.fn = getValue
+  // 给 context 添加一个属性，即 fn
   context.fn = this
+  // getValue.call(a, 'mintnoii', '22') => a.fn = getValue
+
   // 将 context 后面的参数取出来
   var args = [...arguments].slice(1)
-  // getValue.call(a, 'yck', '24') => a.fn('yck', '24')
+  // getValue.call(a, 'mintnoii', '22') => a.fn('mintnoii', '22')
+
+  // 利用新创建的对象执行该函数 
   var result = context.fn(...args)
-  // 删除 fn
+
+  // 删除掉函数 fn
   delete context.fn
   return result
 }
@@ -918,27 +926,26 @@ Function.prototype.myApply = function (context) {
 }
 ```
 
-`bind` 和其他两个方法作用也是一致的，只是该方法会返回一个函数。并且我们可以通过 `bind` 实现柯里化。
+**`bind` 和其他两个方法作用也是一致的，只是该方法会返回一个函数，并且我们可以通过 `bind` 实现柯里化。**
 
 同样的，也来模拟实现下 `bind`
 
 ```js
-Function.prototype.myBind = function (context) {
+Function.prototype.myBind = function() {
   if (typeof this !== 'function') {
-    throw new TypeError('Error')
+    throw new TypeError(`${this} is not callable`);
   }
-  var _this = this
-  var args = [...arguments].slice(1)
-  // 返回一个函数
-  return function F() {
-    // 因为返回了一个函数，我们可以 new F()，所以需要判断
-    if (this instanceof F) {
-      return new _this(...args, ...arguments)
-    }
-    return _this.apply(context, args.concat(...arguments))
-  }
-}
+  var self = this;
+  // 模拟es6的解构效果
+  var that = arguments[0];
+  var argv = [].slice.call(arguments, 1);
+  return function() {
+    // [].slice.call(arguments, 0)将类数组转换为数组
+    return self.apply(that, argv.concat(slice.call(arguments, 0)));
+  };
+};
 ```
+> 更多实现方式与细节问题查看[MDN比较权威的实现](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply)
 
 ## async 和 await
 async 和 await，就是 Generator 函数的语法糖，它建立在Promises上，并且与所有现有的基于Promise的API兼容。
@@ -1016,6 +1023,7 @@ console.log('1', a) // -> '1' 1
 
 缺点：
 - 滥用 `await` 可能会导致性能问题，因为 `await` 会阻塞代码，也许之后的异步代码并不依赖于前者，但仍然需要等待前者完成，导致代码失去了并发性。
+
 ## Proxy
 
 Proxy 是 ES6 中新增的功能，可以用来自定义对象中的操作
