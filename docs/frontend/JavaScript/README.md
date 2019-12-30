@@ -941,8 +941,14 @@ Function.prototype.myBind = function (context) {
 ```
 
 ## async 和 await
+async 和 await，就是 Generator 函数的语法糖，它建立在Promises上，并且与所有现有的基于Promise的API兼容。
 
-一个函数如果加上 `async` ，那么该函数就会返回一个 `Promise`
+**async**
+
+1. Async—声明一个异步函数(async function someName(){...})
+2. 自动将常规函数转换成Promise，返回值也是一个Promise对象
+3. 只有async函数内部的异步操作执行完，才会执行then方法指定的回调函数
+4. 异步函数内部可以使用await
 
 ```js
 async function test() {
@@ -951,9 +957,14 @@ async function test() {
 console.log(test()); // -> Promise {<resolved>: "1"}
 ```
 
-可以把 `async` 看成将函数返回值使用 `Promise.resolve()` 包裹了下。
+一个函数如果加上 `async` ，那么该函数就会返回一个 `Promise`，可以把 `async` 看成将函数返回值使用 `Promise.resolve()` 包裹了下。
 
-`await` 只能在 `async` 函数中使用
+**await**
+
+1. Await—暂停异步的功能执行(var result = await someAsyncCall()😉
+2. 放置在Promise调用之前，await强制其他代码等待，直到Promise完成并返回结果
+3. 只能与Promise一起使用，不适用与回调
+4. 只能在async函数内部使用
 
 ```js
 function sleep() {
@@ -973,8 +984,6 @@ test()
 
 上面代码会先打印 `finish` 然后再打印 `object` 。因为 `await` 会等待 `sleep` 函数 `resolve` ，所以即使后面是同步代码，也不会先去执行同步代码再来执行异步代码。
 
-`async 和 await` 相比直接使用 `Promise` 来说，优势在于处理 `then` 的调用链，能够更清晰准确的写出代码。缺点在于滥用 `await` 可能会导致性能问题，因为 `await` 会阻塞代码，也许之后的异步代码并不依赖于前者，但仍然需要等待前者完成，导致代码失去了并发性。
-
 下面来看一个使用 `await` 的代码。
 
 ```js
@@ -993,10 +1002,20 @@ console.log('1', a) // -> '1' 1
 对于以上代码你可能会有疑惑，这里说明下原理
 
 - 首先函数 `b` 先执行，在执行到 `await 10` 之前变量 `a` 还是 0，因为在 `await` 内部实现了 `generators` ，`generators` 会保留堆栈中东西，所以这时候 `a = 0` 被保存了下来
-- 因为 `await` 是异步操作，遇到`await`就会立即返回一个`pending`状态的`Promise`对象，暂时返回执行代码的控制权，使得函数外的代码得以继续执行，所以会先执行 `console.log('1', a)`
+- 因为 `await` 是异步操作，遇到`await`就会立即返回一个`pending`状态的`Promise`对象，暂时返回执行代码的控制权，使得`async`函数外的代码得以继续执行，所以会先执行 `console.log('1', a)`
 - 这时候同步代码执行完毕，开始执行异步代码，将保存下来的值拿出来使用，这时候 `a = 10`
 - 然后后面就是常规执行代码了
 
+**async/await相比于Promise的优势与缺点？**
+
+优点：
+1. 代码可读性更强。Promise虽然摆脱了回调地狱，但是`then`的链式调用也会带来额外的阅读负担
+2. Promise传递中间值非常麻烦，而async/await几乎是同步的写法，写法非常优雅
+3. 错误处理友好，async/await可以用成熟的try/catch，Promise的错误捕获非常冗余
+4. 调试友好，Promise的调试很差，由于没有代码块，你不能在一个返回表达式的箭头函数中设置断点，如果你在一个`.then`代码块中使用调试器的步进(step-over)功能，调试器并不会进入后续的`.then`代码块，因为调试器只能跟踪同步代码的『每一步』。
+
+缺点：
+- 滥用 `await` 可能会导致性能问题，因为 `await` 会阻塞代码，也许之后的异步代码并不依赖于前者，但仍然需要等待前者完成，导致代码失去了并发性。
 ## Proxy
 
 Proxy 是 ES6 中新增的功能，可以用来自定义对象中的操作
