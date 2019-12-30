@@ -1,29 +1,46 @@
 // 侧边栏配置
-const frontend =  [
+const Frontend =  [
   {
     title: "基础",
     collapsable: true,
     children: [
-      '/frontend/HTML/',
-      '/frontend/CSS/',
-      '/frontend/JavaScript/',
-      '/frontend/Browser/',
+      '/Frontend/HTML/',
+      '/Frontend/CSS/',
+      '/Frontend/JavaScript/',
+      '/Frontend/Browser/',
     ],
   },
   {
     title: "框架",
     collapsable: true,
     children: [
-      // ['/frontend/Vue/', 'Vue'],
-      // ['/frontend/React/', 'React'],
-      '/frontend/Framework/',
-      '/frontend/Vue/',
-      '/frontend/React/',
-    ],
+      // ['/Frontend/Vue/', 'Vue'],
+      // ['/Frontend/React/', 'React'],
+      '/Frontend/Framework/',
+      '/Frontend/Vue/',
+      '/Frontend/React/',
+    ]
   },
 ]
-
+const CS = [
+  {
+    title: '网络协议',
+    collapsable: true,
+    children: [
+      '/CS/HTTP/',
+      '/CS/TCP/'
+    ]
+  },
+  // {
+  //   title: '算法',
+  //   collapsable: true,
+  //   children: [
+  //     '/CS/HTTP',
+  //   ]
+  // }
+]
 
 module.exports = {
-'/frontend/': frontend,
+  '/Frontend/': Frontend,
+  '/CS/': CS,
 }

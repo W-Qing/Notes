@@ -10,37 +10,43 @@ const nav = [
       {
         text: '基础',
         items: [
-          { text: 'HTML', link: '/frontend/HTML/'},
-          { text: 'CSS', link: '/frontend/CSS/' },
-          { text: 'JavaScript', link: '/frontend/JavaScript/' },
-          { text: '浏览器', link: '/frontend/Browser/' }
+          { text: 'HTML', link: '/Frontend/HTML/'},
+          { text: 'CSS', link: '/Frontend/CSS/' },
+          { text: 'JavaScript', link: '/Frontend/JavaScript/' },
+          { text: '浏览器', link: '/Frontend/Browser/' }
         ]
       },
       {
         text: '框架',
         items: [
-          { text: 'Vue', link: '/frontend/Vue/'},
-          { text: 'React', link: '/frontend/React/'}
+          { text: 'Vue', link: '/Frontend/Vue/'},
+          { text: 'React', link: '/Frontend/React/'}
         ]
       }
+    ]
+  },
+  { 
+    text: '计算机基础', 
+    items: [
+      {
+        text: '网络协议',
+        items: [
+          { text: 'HTTP', link: '/CS/HTTP/'},
+          { text: 'TCP', link: '/CS/TCP/' },
+        ]
+      },
+      // {
+      //   text: '算法',
+      //   items: [
+      //     { text: 'React', link: '/CS/React/'}
+      //   ]
+      // }
     ]
   },
   {
     text: 'About',
     link: '/about/'
   },
-// {
-//   text: '练习',
-//   items: [{
-//           text: '小游戏',
-//           link: '/PAGE/2019-10-23-before/',
-//       },
-//       {
-//           text: '聊天室',
-//           link: '/PAGE/2019-10-14-myChat/',
-//       }
-//   ]
-// },
 // {
 //   text: '其他',
 //   items: [{
