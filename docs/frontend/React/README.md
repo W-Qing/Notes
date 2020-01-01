@@ -33,7 +33,7 @@
 
 - componentWillUnmount: 当我们的组件被卸载或者销毁了就会调用，我们可以在这个函数里去清除一些定时器，取消网络请求，清理无效的 DOM 元素等垃圾清理工作
 
-![React 生命周期](../Images/framework/react/lifecycles.png)
+![React 生命周期](../Images/react/lifecycles.png)
 
 ## 请求应该放在哪个生命周期中？
 React 的异步请求到底应该放在哪个生命周期里，有人认为在 componentWillMount 中可以提前进行异步请求，避免白屏，其实这个观点是有问题的。
@@ -92,7 +92,7 @@ React 组件间通信方式：
 - 发布订阅模式：发布者发布事件，订阅者监听事件并做出反应，我们可以通过引入 event 模块进行通信
 - 全局状态管理工具：借助 Redux 或者 Mobx 等全局状态管理工具进行通信，这种工具会维护一个全局状态中心 Store, 并根据不同的事件产生新的状态
 
-![reduxStore](../Images/framework/react/reduxStore.png)
+![reduxStore](../Images/react/reduxStore.png)
 
 ## 如何理解 Fiber 及 Time Slice 的？
 
@@ -106,7 +106,7 @@ React 16 之前 ，`reconcilation` 算法实际上是递归，想要中断递归
 
 **Time Slice 时间分片：** 
 
-![Fiber 分段示意图](../Images/framework/react/fiber.png)
+![Fiber 分段示意图](../Images/react/fiber.png)
 
 Fiber 本质上是一个虚拟的堆栈帧，新的调度器会按照优先级自由调度这些帧，从而将之前的同步渲染改成了异步渲染，在不影响体验的情况下去分段计算更新。时间分片正是基于可随时打断、重启的 Fiber 架构，可打断当前任务，优先处理紧急且重要的任务，保证页面的流畅运行。
 
@@ -138,7 +138,7 @@ Fiber 本质上是一个虚拟的堆栈帧，新的调度器会按照优先级�
 
 到这儿为止，一次用户交互流程结束。可以看到，在整个流程中数据都是单向流动的，这种方式保证了流程的清晰。
 
-![redux 工作流](../Images/framework/react/redux-life.png)
+![redux 工作流](../Images/react/redux-life.png)
 
 ## react-redux 是如何工作的？
 
@@ -148,7 +148,7 @@ Fiber 本质上是一个虚拟的堆栈帧，新的调度器会按照优先级�
   - 包装原组件：将 state 和 action 通过 props 的方式传入到原组件内部 wrapWithConnect 返回一个 ReactComponent 对象 Connect，Connect 重新 render 外部传入的原组件 WrappedComponent，并把 connect 中传入的 mapStateToProps, mapDispatchToProps 与组件上原有的 props 合并后，通过属性的方式传给 WrappedComponent
   - 监听 store tree 变化：connect 缓存了 store tree 中 state 的状态，通过当前 state 状态和变更前 state 状态进行比较，从而确定是否调用`this.setState()`方法触发 Connect 及其子组件的重新渲染
 
-![react-redux 工作流程](../Images/framework/react/reactRedux-life.png)
+![react-redux 工作流程](../Images/react/reactRedux-life.png)
 
 ## redux 与 mobx 的区别？
 

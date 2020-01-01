@@ -79,7 +79,7 @@ Vue 实例有一个完整的生命周期，也就是从开始创建、初始化�
 
 **生命周期示意图：**
 
-![vue 生命周期分析](../Images/framework/vue/lifescyles.png)
+![vue 生命周期分析](../Images/vue/lifescyles.png)
 
 > 官方实例的异步请求是在 mounted 生命周期中调用的，而实际上也可以在 created 生命周期中调用。
 
