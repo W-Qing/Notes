@@ -71,129 +71,133 @@ export function nextTick(cb?: Function, ctx?: Object) {
 
 ## 生命周期分析
 
-生命周期函数就是组件在初始化或者数据更新时会触发的钩子函数。
+**生命周期是什么？**
 
-![img](https://yck-1254263422.cos.ap-shanghai.myqcloud.com/blog/2019-06-01-043714.png)
+Vue 实例有一个完整的生命周期，也就是从开始创建、初始化数据、编译模版、挂载Dom => 渲染、更新 => 渲染、卸载等一系列过程，我们称这是Vue的生命周期。
 
-在初始化时，会调用以下代码，生命周期就是通过 `callHook` 调用的
+其中，生命周期函数就是组件在初始化或者数据更新时会触发的钩子函数。
 
-```js
-Vue.prototype._init = function(options) {
-  initLifecycle(vm)
-  initEvents(vm)
-  initRender(vm)
-  callHook(vm, 'beforeCreate') // 拿不到 props data
-  initInjections(vm)
-  initState(vm)
-  initProvide(vm)
-  callHook(vm, 'created')
-}
-```
+**生命周期示意图：**
 
-可以发现在以上代码中，`beforeCreate` 调用的时候，是获取不到 props 或者 data 中的数据的，因为这些数据的初始化都在 `initState` 中。
+![vue 生命周期分析](../Images/framework/vue/lifescyles.png)
 
-接下来会执行挂载函数
+> 官方实例的异步请求是在mounted生命周期中调用的，而实际上也可以在created生命周期中调用。
 
-```js
-export function mountComponent {
-    callHook(vm, 'beforeMount')
-    // ...
-    if (vm.$vnode == null) {
-        vm._isMounted = true
-        callHook(vm, 'mounted')
-    }
-}
-```
+**各个生命周期的作用：**
 
-`beforeMount` 就是在挂载前执行的，然后开始创建 VDOM 并替换成真实 DOM，最后执行 `mounted` 钩子。这里会有个判断逻辑，如果是外部 `new Vue({})` 的话，不会存在 `$vnode` ，所以直接执行 `mounted` 钩子了。如果有子组件的话，会递归挂载子组件，只有当所有子组件全部挂载完毕，才会执行根组件的挂载钩子。
+| 生命周期      | 描述                                                         |
+| ------------- | ------------------------------------------------------------ |
+| beforeCreate  | 组件实例被创建之初，组件的属性生效之前                       |
+| created       | 组件实例已经完全创建，属性也绑定，但真实dom还没有生成，`$el`还不可用 |
+| beforeMount   | 在挂载开始之前被调用：相关的 render 函数首次被调用           |
+| mounted       | el 被新创建的 vm.$el 替换，并挂载到实例上去之后调用该钩子    |
+| beforeUpdate  | 组件数据更新之前调用，发生在虚拟 DOM 打补丁之前              |
+| update        | 组件数据更新之后                                             |
+| activited     | keep-alive专属，组件被激活时调用                             |
+| deadctivated  | keep-alive专属，组件被销毁时调用                             |
+| beforeDestory | 组件销毁前调用                                               |
+| destoryed     | 组件销毁后调用                                               |
 
-接下来是数据更新时会调用的钩子函数
+## 组件通信
 
-```js
-function flushSchedulerQueue() {
-  // ...
-  for (index = 0; index < queue.length; index++) {
-    watcher = queue[index]
-    if (watcher.before) {
-      watcher.before() // 调用 beforeUpdate
-    }
-    id = watcher.id
-    has[id] = null
-    watcher.run()
-    // in dev build, check and stop circular updates.
-    if (process.env.NODE_ENV !== 'production' && has[id] != null) {
-      circular[id] = (circular[id] || 0) + 1
-      if (circular[id] > MAX_UPDATE_COUNT) {
-        warn(
-          'You may have an infinite update loop ' +
-            (watcher.user
-              ? `in watcher with expression "${watcher.expression}"`
-              : `in a component render function.`),
-          watcher.vm
-        )
-        break
-      }
-    }
-  }
-  callUpdatedHooks(updatedQueue)
-}
+Vue 组件间通信方式:
 
-function callUpdatedHooks(queue) {
-  let i = queue.length
-  while (i--) {
-    const watcher = queue[i]
-    const vm = watcher.vm
-    if (vm._watcher === watcher && vm._isMounted) {
-      callHook(vm, 'updated')
-    }
-  }
-}
-```
+- `props` 和` $emit + v-on`：通过 `props`将数据自上而下传递，而通过`$emit`和`v-on`来向上传递信息
+- EventBus：通过EventBus进行信息的发布与订阅
+- vuex：是全局数据管理库，可以通过vuex管理全局的数据流
+- `$attrs/$listeners`： Vue2.4 中加入的`$attrs/$listeners`可以进行跨级的组件通信
+- `provide/inject`：以允许一个祖先组件向其所有子孙后代注入一个依赖，不论组件层次有多深，并在起上下游关系成立的时间里始终生效，这成为了跨组件通信的基础
 
-上图还有两个生命周期没有说，分别为 `activated` 和 `deactivated` ，这两个钩子函数是 `keep-alive` 组件独有的。用 `keep-alive` 包裹的组件在切换时不会进行销毁，而是缓存到内存中并执行 `deactivated` 钩子函数，命中缓存渲染后会执行 `actived` 钩子函数。
+还有一些用solt插槽或者ref实例进行通信的，使用场景过于有限就不赘述了。
 
-最后就是销毁组件的钩子函数了
+> 推荐阅读：[vue中8种组件通信方式](https://juejin.im/post/5d267dcdf265da1b957081a3)
+>
+> 不过太偏门的通信方式根本不会用到，单做知识点了解即可
 
-```js
-Vue.prototype.$destroy = function() {
-  // ...
-  callHook(vm, 'beforeDestroy')
-  vm._isBeingDestroyed = true
-  // remove self from parent
-  const parent = vm.$parent
-  if (parent && !parent._isBeingDestroyed && !vm.$options.abstract) {
-    remove(parent.$children, vm)
-  }
-  // teardown watchers
-  if (vm._watcher) {
-    vm._watcher.teardown()
-  }
-  let i = vm._watchers.length
-  while (i--) {
-    vm._watchers[i].teardown()
-  }
-  // remove reference from data ob
-  // frozen object may not have observer.
-  if (vm._data.__ob__) {
-    vm._data.__ob__.vmCount--
-  }
-  // call the last hook...
-  vm._isDestroyed = true
-  // invoke destroy hooks on current rendered tree
-  vm.__patch__(vm._vnode, null)
-  // fire destroyed hook
-  callHook(vm, 'destroyed')
-  // turn off all instance listeners.
-  vm.$off()
-  // remove __vue__ reference
-  if (vm.$el) {
-    vm.$el.__vue__ = null
-  }
-  // release circular reference (##6759)
-  if (vm.$vnode) {
-    vm.$vnode.parent = null
-  }
-}
-```
+## computed和watch的区别
 
-在执行销毁操作前会调用 `beforeDestroy` 钩子函数，然后进行一系列的销毁操作，如果有子组件的话，也会递归销毁子组件，所有子组件都销毁完毕后才会执行根组件的 `destroyed` 钩子函数。
+**computed：**
+
+1. `computed`是计算属性,也就是计算值,它更多用于计算值的场景
+2. `computed`具有缓存性,computed的值在getter执行后是会缓存的，只有在它依赖的属性值改变之后，下一次获取computed的值时才会重新调用对应的getter来计算
+3. `computed`适用于计算比较消耗性能的计算场景
+
+**watch：**
+
+1. 更多的是「观察」的作用,类似于某些数据的监听回调，用于观察`props` 、`$emit`或者本组件的值,当数据变化时来执行回调进行后续操作
+2. 没有缓存性，页面重新渲染时值不变化也会执行
+
+**用法：**
+
+1. 当我们要进行数值计算,而且依赖于其他数据，那么把这个数据设计为 computed
+2. 如果你需要在某个数据变化时做一些事情，使用 watch 来观察这个数据变化
+
+## Vue实现双向绑定的原理
+
+利用`Object.defineProperty`劫持对象的访问器，在属性值发生变化时我们可以获取变化,然后根据变化进行后续响应，在 vue3.0 中通过 Proxy 代理对象进行类似的操作。
+
+> 详细实现见[Proxy比defineproperty优劣对比?](https://www.cxymsg.com/guide/devsProxy.html)
+
+## Proxy与Object.defineProperty的对比?
+
+Proxy的优势如下:
+
+- Proxy可以直接监听对象而非属性
+- Proxy可以直接监听数组的变化
+- Proxy有多达13种拦截方法,不限于apply、ownKeys、deleteProperty、has等等是`Object.defineProperty`不具备的
+- Proxy返回的是一个新对象，我们可以只操作新的对象达到目的,而`Object.defineProperty`只能遍历对象属性直接修改
+- Proxy作为新标准将受到浏览器厂商重点持续的性能优化，也就是传说中的新标准的性能红利
+
+Object.defineProperty的优势如下:
+
+- 兼容性好,支持IE9
+
+> 详细实现见[Proxy比defineproperty优劣对比?](https://www.cxymsg.com/guide/devsProxy.html)
+
+## 如何理解Vue的响应式系统的?
+
+![2019-07-22-16-29-59](https://xiaomuzhu-image.oss-cn-beijing.aliyuncs.com/d5bfe6c9f35554783bd618edc15ec274.png)
+
+响应式系统简述:
+
+- 任何一个 Vue Component 都有一个与之对应的 Watcher 实例。
+- Vue 的 data 上的属性会被添加 getter 和 setter 属性。
+- 当 Vue Component render 函数被执行的时候，data 会被触碰(touch)，即被读， getter 方法会被调用， 此时 Vue 会去记录此 Vue component 所依赖的所有 data。(这一过程被称为依赖收集)
+- data 被改动时（主要是用户操作）， 即被写, setter 方法会被调用，此时 Vue 会去通知所有依赖于此 data 的组件去调用他们的 render 函数进行更新。
+
+> [深入响应式系统](https://www.cxymsg.com/guide/reactivity.html)
+
+## 既然Vue通过数据劫持可以精准探测数据变化,为什么还需要虚拟DOM进行diff检测差异? 🌟
+
+考点: Vue的变化侦测原理
+
+前置知识: 依赖收集、虚拟DOM、响应式系统
+
+现代前端框架有两种方式侦测变化,一种是pull一种是push
+
+pull: 其代表为React，我们可以回忆一下React是如何侦测到变化的,我们通常会用`setState`API显式更新，然后React会进行一层层的Virtual Dom Diff操作找出差异,然后Patch到DOM上，React从一开始就不知道到底是哪发生了变化,只是知道「有变化了」，然后再进行比较暴力的Diff操作查找「哪发生变化了」，另外一个代表就是Angular的脏检查操作。
+
+push: Vue的响应式系统则是push的代表,当Vue程序初始化的时候就会对数据data进行依赖的收集,一旦数据发生变化,响应式系统就会立刻得知,因此Vue是一开始就知道是「在哪发生变化了」，但是这又会产生一个问题,如果你熟悉Vue的响应式系统就知道,通常绑定一个数据就需要一个Watcher,如果我们的绑定细粒度过高就会产生大量的Watcher，这会带来内存以及依赖追踪的开销，而细粒度过低又会无法精准侦测变化。因此Vue的设计是选择中等细粒度的方案，在组件级别进行push侦测的方式，也就是那套响应式系统。通常我们会第一时间侦测到发生变化的组件，然后在组件内部进行Virtual Dom Diff获取更加具体的差异，而Virtual Dom Diff则是pull操作，Vue是push+pull结合的方式进行变化侦测的。
+
+## Vue为什么没有类似于React中shouldComponentUpdate的生命周期？🌟
+
+考点: Vue的变化侦测原理
+
+前置知识: 依赖收集、虚拟DOM、响应式系统
+
+**根本原因是Vue与React的变化侦测方式有所不同**
+
+React是pull的方式侦测变化，当React知道发生变化后，会使用Virtual Dom Diff进行差异检测，但是很多组件实际上是肯定不会发生变化的，这个时候需要用shouldComponentUpdate进行手动操作来减少diff，从而提高程序整体的性能。
+
+Vue是pull+push的方式侦测变化的，在一开始就知道那个组件发生了变化，因此在push的阶段并不需要手动控制diff。而组件内部采用的diff方式实际上是可以引入类似于shouldComponentUpdate相关生命周期的，但是通常合理大小的组件不会有过量的diff，手动优化的价值有限，因此目前Vue并没有考虑引入shouldComponentUpdate这种手动优化的生命周期。
+
+## Vue中的key到底有什么用？
+
+`key`是为Vue中的vnode标记的唯一id，通过这个key，我们的diff操作可以更准确、更快速。diff算法的过程中先会进行新旧节点的首尾交叉对比，当无法匹配的时候会用新节点的`key`与旧节点进行比对，然后找出差异。
+
+> diff程可以概括为：oldCh和newCh各有两个头尾的变量StartIdx和EndIdx，它们的2个变量相互比较，一共有4种比较方式。如果4种比较都没匹配，如果设置了key，就会用key进行比较，在比较的过程中，变量会往中间靠，一旦StartIdx>EndIdx表明oldCh和newCh至少有一个已经遍历完了，就会结束比较,这四种比较方式就是首、尾、旧尾新头、旧头新尾.
+
+- 准确: 如果不加`key`，那么vue会选择复用节点(Vue的就地更新策略)，导致之前节点的状态被保留下来，会产生一系列的bug。
+- 快速: key的唯一性可以被Map数据结构充分利用，相比于遍历查找的时间复杂度O(n)，Map的时间复杂度仅仅为O(1)。
+
+![2019-07-26-14-52-57](https://xiaomuzhu-image.oss-cn-beijing.aliyuncs.com/8edce49381a9f6198faa60d7af73f74b.png)
