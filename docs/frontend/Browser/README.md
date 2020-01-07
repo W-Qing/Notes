@@ -2,15 +2,15 @@
 
 ## 常见内核
 
-浏览器/RunTime	内核（渲染引擎）	JavaScript 引擎
-Chrome	Blink（28~）
-Webkit（Chrome 27）	V8
-FireFox	Gecko	SpiderMonkey
-Safari	Webkit	JavaScriptCore
-Edge	EdgeHTML	Chakra(for JavaScript)
-IE	Trident	Chakra(for JScript)
-PhantomJS	Webkit	JavaScriptCore
-Node.js	-	V8
+| 浏览器/RunTime |         内核（渲染引擎）         |    JavaScript 引擎     |
+| :------------: | :------------------------------: | :--------------------: |
+|     Chrome     | Blink（28~） Webkit（Chrome 27） |           V8           |
+|    FireFox     |              Gecko               |      SpiderMonkey      |
+|     Safari     |              Webkit              |     JavaScriptCore     |
+|      Edge      |             EdgeHTML             | Chakra(for JavaScript) |
+|       IE       |             Trident              |  Chakra(for JScript)   |
+|   PhantomJS    |              Webkit              |     JavaScriptCore     |
+|    Node.js     |                -                 |           V8           |
 
 ## 组成部分
 
@@ -26,37 +26,86 @@ Node.js	-	V8
 
 > 值得注意的是，和大多数浏览器不同，Chrome 浏览器的每个标签页都分别对应一个渲染引擎实例。每个标签页都是一个独立的进程。
 
-## Event Loop
+## Event Loop 🌟
 
-**Event Loop(事件循环)是 JavaScript 的执行机制**，分为浏览器端与Node端两种。
+### 栈、队列的基本概念
 
-```js
- setTimeout(() => {
-  console.log(1)
-  Promise.resolve(3).then(data => console.log(data))
-}, 0)
-      
-setTimeout(() => {
-  console.log(2)
-}, 0)
-//浏览器 1 3 2
-//node 1 2 3
-```
+**栈（Stack）** 
 
-这里记录的是浏览器端的事件循环机制：
+- 栈在计算机科学中是限定仅在**表尾**进行**插入**或**删除**操作的线性表。 
+- 栈是一种数据结构，它按照**后进先出**的原则存储数据，**先进入**的数据被压入**栈底**，**最后的数据**在**栈顶**，需要读数据的时候从**栈顶**开始**弹出数据**。
+- 栈是只能在**某一端插入**和**删除**的**特殊线性表**。
 
-**众所周知 JS 是一门非阻塞单线程语言**，同一时间只能执行一个任务，即代码执行是同步并且阻塞的。
+**队列（Queue）**
+
+- 特殊之处在于它只允许在表的前端（`front`）进行**删除**操作，而在表的后端（`rear`）进行**插入**操作，和**栈**一样，**队列**是一种操作受限制的线性表。
+- 进行**插入**操作的端称为**队尾**，进行**删除**操作的端称为**队头**。 队列中没有元素时，称为**空队列**。
+- **队列**的数据元素又称为**队列元素**。在队列中插入一个队列元素称为**入队**，从**队列**中**删除**一个队列元素称为**出队**。
+- 因为队列**只允许**在一端**插入**，在另一端**删除**，所以只有**最早**进入**队列**的元素**才能最先从队列中**删除，故队列又称为**先进先出**（`FIFO—first in first out`）
+
+### 宏认为与微任务
+
+在`JavaScript`中，任务被分为两种，一种宏任务（`MacroTask`）也叫`Task`，一种叫微任务（`MicroTask`），也叫`Jobs`。
+
+**MacroTask（宏任务）**
+
+在 JavaScript 中，大部分的任务都是在主线程上执行，为了让这些事件有条不紊地进行，JS 引擎需要对它们的执行顺序做一定的安排，V8 其实采用的是一种`队列`的方式来存储这些任务， 即先进来的先执行。
+
+- script 全部代码，即 js 脚本执行
+- setTimeout、setInterval、setImmediate(只有IE10支持) 
+- I/O 用户交互、网络请求、文件读写完成事件等
+- UI rendering 渲染事件
+
+**MicroTask（微任务）**
+
+对于每个宏任务而言，其内部都有一个微任务队列。引入微任务的初衷是为了解决异步回调的问题。
+
+如果异步回调也像宏任务一样进行队列的入队操作，那么执行这些回调的时机就是在前面`所有的宏任务`完成之后（先进先出），倘若现在的任务队列非常长，那么异步回调迟迟得不到执行，造成`应用卡顿`。
+
+为了规避这样的问题，V8 引入了`微任务`的解决方式。在每一个宏任务中定义一个**微任务队列**，当该宏任务执行完成，会检查其中的微任务队列，如果为空则直接执行下一个宏任务，如果不为空，则`依次执行微任务`，执行完成才去执行下一个宏任务。
+
+- Promise、fetch API
+- Object.observe （废弃）
+- MutationObserver
+- process.nextTick（Node独有）
+- V8 的垃圾回收
+
+**requestAnimationFrame**
+
+`requestAnimationFrame`也属于异步执行的方法，但该方法既不属于宏任务，也不属于微任务。
+
+> `window.requestAnimationFrame()` 告诉浏览器——你希望执行一个动画，并且要求浏览器在下次重绘之前调用指定的回调函数更新动画。该方法需要传入一个回调函数作为参数，该回调函数会在浏览器下一次重绘之前执行。
+
+requestAnimationFrame是GUI渲染之前执行，但在微服务之后，不过requestAnimationFrame不一定会在当前帧必须执行，由浏览器根据当前的策略自行决定在哪一帧执行。
+
+### 浏览器端的 Event Loop
+
+**Event Loop(事件循环)是指浏览器或`Node`的一种实现`javaScript`单线程运行时不会阻塞的一种机制（JS 运行机制）**，也就是我们经常使用的**异步**的原理。
+
+众所周知 JS 是一门非阻塞单线程语言，同一时间只能执行一个任务，即代码的执行是同步并且阻塞的。
+
 > 1. 首先是历史原因，在创建 JS 这门语言时，多进程多线程的架构并不流行，硬件支持并不好。
 > 2. 其次是因为多线程的复杂性，多线程操作需要加锁，编码的复杂性会增高。
 > 3. 最主要的是，JS 就是为了和浏览器交互而诞生的，如果在多个线程中同时操作 DOM ，在不加锁的情况下，最终会导致 DOM 渲染的结果不可预期（一个线程中新加节点，另一个线程中删除节点）。
 
-> 尽管 HTML5中有Web-Worker，但javascript仍然是单线程的。一切 javascript 版的"多线程"都是用单线程模拟出来的。
+> 尽管 HTML5 中有 Web-Worker，但 JS 仍然是单线程的。一切 JavaScript 版的"多线程"都是用单线程模拟出来的。
 
-JS 在执行的过程中会产生执行环境，这些执行环境会被顺序的加入到执行栈中。
+只有一个主线程，那 javascript 是如何处理函数的调用关系的？答案是——**调用栈**。
 
-如果遇到异步的代码，会被挂起并加入到 Task（有多种 task） 队列中。
+![Event Loop](../Images/browser/eventloop.jpg)
 
-一旦执行栈为空，Event Loop 就会从 Task 队列中拿出需要执行的代码并放入执行栈中执行，所以本质上来说 JS 中的异步还是同步行为。
+单线程的运行环境有且只有一个 `call-stack` 调用栈(执行栈)，所有的任务都会被放到调用栈等待浏览器的主线程执行。
+
+调用栈采用的是后进先出(LIFO)的规则，当一个函数被执行的时候，它会被添加到栈的顶部(如果它的函数体内有其他函数，则将新的函数加到栈顶)，当函数在调用栈内被执行完成后，就会从栈顶移出，直到栈内被清空。
+
+当调用栈执行完毕之后，就会在队列里面找任务，如果有微任务，就会先执行微任务，再去执行宏任务。
+
+**事件循环：** 就是同步任务进入主线程，异步任务加入到任务队列中。等主线程的任务执行完就去执行任务队列中的任务，这个过程会不断重复。**所有同步任务都在主线程上执行，形成一个执行栈。主线程之外, 存在一个任务队列(task queue), 异步任务有了运行结果会在任务队列之中放置一个任务。执行栈中的所有同步任务执行完毕后读取任务队列(先读取微任务、宏任务)不断重复上面的第三步。**
+
+> 本质上来说 JS 中的异步还是同步行为
+
+有点晕？看这里👉🏻[到底什么是Event Loop呢?](https://www.bilibili.com/video/av74599059?t=960)👀
+
 ```js
 console.log('script start')
 
@@ -69,7 +118,7 @@ console.log('script end')
 上面👆的代码虽然 setTimeout 延时为 0，其实还是异步的。所以 setTimeout 还是会在 script end 之后打印。
 > 而且 HTML5 标准规定这个函数第二个参数不得小于 4 毫秒，不足会自动增加。
 
-不同的任务源会被分配到不同的 Task 队列中，任务源可以分为 微任务（microtask） 和 宏任务（macrotask）。在 ES6 规范中，microtask 称为 jobs，macrotask 称为 task。
+不同的任务源会被分配到不同的 Task 队列中。
 ```js
 console.log('script start')
 
@@ -81,12 +130,12 @@ new Promise(resolve => {
   console.log('Promise')
   resolve()
 })
-  .then(function() {
-    console.log('promise1')
-  })
-  .then(function() {
-    console.log('promise2')
-  })
+.then(function() {
+  console.log('promise1')
+})
+.then(function() {
+  console.log('promise2')
+})
 
 console.log('script end')
 // script start => Promise => script end => promise1 => promise2 => setTimeout
@@ -94,17 +143,14 @@ console.log('script end')
 
 以上代码虽然 setTimeout 写在 Promise 之前，但是因为 Promise 属于微任务而 setTimeout 属于宏任务，所以会有以上的打印。
 
-- 微任务包括 process.nextTick ，promise ，Object.observe ，MutationObserver
-
-- 宏任务包括 script ， setTimeout ，setInterval ，setImmediate ，I/O ，UI rendering
-
 所以正确的一次 Event loop 顺序是这样的：
 
-1. 执行同步代码，这属于宏任务
-2. 执行栈为空，查询是否有微任务需要执行
-3. 执行所有微任务
-4. 必要的话渲染 UI
-5. 然后开始下一轮 Event loop，执行宏任务中的异步代码
+1. 一开始整段脚本作为第一个**宏任务**执行
+2. 执行过程中同步代码直接执行，**宏任务**进入宏任务队列，**微任务**进入微任务队列
+3. 当前宏任务执行完出队，检查微任务队列，如果有则依次执行，直到微任务队列为空
+4. 必要的话，执行浏览器 UI 线程的渲染工作
+5. 检查是否有Web worker任务，有则执行
+6. 执行队首新的宏任务，回到2，开始下一轮 Event loop，依此循环，直到宏任务和微任务队列都为空
 
 通过上述的 Event loop 顺序可知，如果宏任务中的异步代码有大量的计算并且需要操作 DOM 的话，为了更快的 界面响应，我们可以把操作 DOM 放入微任务中。
 
@@ -273,7 +319,7 @@ console.log(isChrome)
 [Ajax 知识体系大梳理](https://juejin.im/post/58c883ecb123db005311861a)
 
 ### 跨域
-同源策略
+**同源策略：**
 
 因为浏览器出于安全考虑，限制了从同一个源加载的文档或脚本与来自另一个源的资源进行交互，即同源策略，这是一个用于隔离潜在恶意文件的重要安全机制。
 
@@ -298,15 +344,11 @@ console.log(isChrome)
 >
 > script 可以用于 JSONP
 
-我们可以通过以下几种常用方法解决跨域的问题
+#### 几种实现跨域的常用方法
 
- 实现跨域的方式
+**1. JSONP**
 
- 1. JSONP
-
-jsonp本质上是一个Hack，它利用<script>标签不受同源策略限制的特性进行跨域操作。
-
-JSONP 的原理很简单，就是利用 `<script>` 标签没有跨域限制的漏洞。通过 `<script>` 标签指向一个需要访问的地址并提供一个回调函数来接收数据。
+jsonp本质上是一个Hack，它的原理就是利用`<script>`标签不受同源策略限制的特性，通过 `<script>` 标签指向一个需要访问的地址并提供一个回调函数来接收数据，从而实现跨域操作。
 
 ```js
 <script src="http://domain/api?param1=a&param2=b&callback=jsonp"></script>
@@ -350,41 +392,53 @@ jsonp('http://xxx', 'callback', function(value) {
 })
 ```
 
-### CORS
+**2. CORS**
 
-CORS 需要浏览器和后端同时支持。IE 8 和 9 需要通过 `XDomainRequest` 来实现。
+CORS 是目前主流的跨域解决方案，跨域资源共享(CORS) 是一种机制，它使用额外的 HTTP 头来告诉浏览器 让运行在一个 origin (domain) 上的Web应用被准许访问来自不同源服务器上的指定的资源。当一个资源从与该资源本身所在的服务器不同的域、协议或端口请求一个资源时，资源会发起一个跨域 HTTP 请求。
 
-浏览器会自动进行 CORS 通信，实现 CORS 通信的关键是后端。只要后端实现了 CORS，就实现了跨域。
+CORS 需要浏览器和后端同时支持。浏览器会自动进行 CORS 通信，实现 CORS 通信的关键是后端。只要后端实现了 CORS，就实现了跨域。
 
-服务端通过设置 http header 的 `Access-Control-Allow-Origin` 属性就可以开启 CORS。 该属性表示哪些域名可以访问资源，如果设置通配符则表示所有网站都可以访问资源。
+> IE 8 和 9 需要通过 `XDomainRequest` 来实现。
+
+服务端通过设置 http header 的 `Access-Control-Allow-Origin` 属性就可以开启 CORS。
+
+该属性表示哪些域名可以访问资源，如果设置通配符则表示所有网站都可以访问资源。
 
 ```js
 // 不同的后端语言会有不同
 response.setHeader("Access-Control-Allow-Origin", "http://test.com") // 不建议直接写 '*'
 ```
 
-### document.domain
+> 在生产环境中建议用成熟的开源中间件解决问题。
 
-该方式只能用于二级域名相同的情况下，比如 `a.test.com` 和 `b.test.com` 适用于该方式。
+**其它跨域方案**
 
-只需要给页面添加 `document.domain = 'test.com'` 表示二级域名都相同就可以实现跨域
+1. HTML5 XMLHttpRequest 有一个API，`postMessage()`方法允许来自不同源的脚本采用异步方式进行有限的通信，可以实现跨文本档、多窗口、跨域消息传递。
 
-### postMessage
+   ```js
+   // 这种方式通常用于获取嵌入页面中的第三方页面数据。
+   // 一个页面发送消息，另一个页面判断来源并接收消息。
+   // 发送消息端
+   window.parent.postMessage('message', 'http://test.com')
+   // 接收消息端
+   var mc = new MessageChannel()
+   mc.addEventListener('message', event => {
+     var origin = event.origin || event.originalEvent.origin
+     if (origin === 'http://test.com') {
+       console.log('验证通过')
+     }
+   })
+   ```
 
-这种方式通常用于获取嵌入页面中的第三方页面数据。一个页面发送消息，另一个页面判断来源并接收消息
+2. WebSocket 是一种双向通信协议，在建立连接之后，WebSocket 的 server 与 client 都能主动向对方发送或接收数据，连接建立好了之后 client 与 server 之间的双向通信就与 HTTP 无关了，因此可以跨域。
 
-```js
-// 发送消息端
-window.parent.postMessage('message', 'http://test.com')
-// 接收消息端
-var mc = new MessageChannel()
-mc.addEventListener('message', event => {
-  var origin = event.origin || event.originalEvent.origin
-  if (origin === 'http://test.com') {
-    console.log('验证通过')
-  }
-})
-```
+3. window.name + iframe：window.name属性值在不同的页面（甚至不同域名）加载后依旧存在，并且可以支持非常长的 name 值，我们可以利用这个特点进行跨域。
+
+4. location.hash + iframe：a.html欲与c.html跨域相互通信，通过中间页b.html来实现。 三个页面，不同域之间利用iframe的location.hash传值，相同域之间直接js访问来通信。
+
+5. document.domain + iframe： 该方式只能用于二级域名相同的情况下，比如 `a.test.com` 和 `b.test.com` 适用于该方式。我们只需要给页面添加 `document.domain = 'test.com'` 表示二级域名都相同就可以实现跨域，两个页面都通过js强制设置`document.domain`为基础主域，就实现了同域。
+
+> 推荐阅读：[九种跨域方式](https://juejin.im/post/5c23993de51d457b8c1f4ee1#heading-19)
 
 ## 存储
 
