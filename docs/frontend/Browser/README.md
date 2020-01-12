@@ -1,20 +1,8 @@
 # 浏览器
 
-## 常见内核
-
-| 浏览器/RunTime |         内核（渲染引擎）         |    JavaScript 引擎     |
-| :------------: | :------------------------------: | :--------------------: |
-|     Chrome     | Blink（28~） Webkit（Chrome 27） |           V8           |
-|    FireFox     |              Gecko               |      SpiderMonkey      |
-|     Safari     |              Webkit              |     JavaScriptCore     |
-|      Edge      |             EdgeHTML             | Chakra(for JavaScript) |
-|       IE       |             Trident              |  Chakra(for JScript)   |
-|   PhantomJS    |              Webkit              |     JavaScriptCore     |
-|    Node.js     |                -                 |           V8           |
-
 ## 组成部分
 
-1. **用户界面** - 包括地址栏、前进/后退按钮、书签菜单等。除了浏览器主窗口显示的您请求的页面外，其他显示的各个部分都属于用户界面。
+1. **用户界面** - 包括地址栏、前进/后退按钮、书签菜单等。除了浏览器主窗口显示的你请求的页面外，其他显示的各个部分都属于用户界面。
 2. **浏览器引擎** - 在用户界面和渲染引擎之间传送指令。
 3. **渲染引擎** - 负责显示请求的内容。如果请求的内容是 HTML，它就负责解析 HTML 和 CSS 内容，并将解析后的内容显示在屏幕上。
 4. **网络** - 用于网络调用，比如 HTTP 请求。其接口与平台无关，并为所有平台提供底层实现。
@@ -26,6 +14,70 @@
 
 > 值得注意的是，和大多数浏览器不同，Chrome 浏览器的每个标签页都分别对应一个渲染引擎实例。每个标签页都是一个独立的进程。
 
+## 常见内核
+
+浏览器的内核是指支持浏览器运行的最核心的程序，分为两个部分：一是渲染引擎，另一个是JS引擎。
+
+渲染引擎在不同的浏览器中也不是都相同的，目前市面上常见的浏览器内核可以分为这四种：Trident（IE）、Gecko（火狐）、Blink（Chrome、Opera）、Webkit（Safari）。
+
+| 浏览器/RunTime |         内核（渲染引擎）         |    JavaScript 引擎     |
+| :------------: | :------------------------------: | :--------------------: |
+|     Chrome     | Blink（28~） Webkit（Chrome 27） |           V8           |
+|    FireFox     |              Gecko               |      SpiderMonkey      |
+|     Safari     |              Webkit              |     JavaScriptCore     |
+|      Edge      |             EdgeHTML             | Chakra(for JavaScript) |
+|       IE       |             Trident              |  Chakra(for JScript)   |
+|   PhantomJS    |              Webkit              |     JavaScriptCore     |
+|    Node.js     |                -                 |           V8           |
+
+## 渲染机制
+
+ 先了解下浏览器请求加载资源的过程，然后才能更好的理解浏览器的渲染机制。
+
+**浏览器请求加载一个资源的主要过程：**
+
+- 浏览器根据 DNS 服务器得到域名的 IP 地址
+- 向这个 IP 的服务器发送 http 请求
+- 服务器收到请求，处理并返回 http 请求
+- 浏览器得到返回内容
+
+浏览器得到服务器返回的内容后，接下来就是渲染过程。
+
+**浏览器渲染页面的过程：**
+
+1. 解析 HTML 结构生成DOM树形结构—**DOM Tree**
+2. 解析CSS，生成CSS规则树—**CSSOM Tree**
+3. 解析完成后，浏览器引擎会通过 DOM API 和 CSSOM API 来操作 DOM Tree 和CSSOM Tree，组合形成渲染树—**Render Tree**
+4. 根据渲染树来进行布局—**Layout** (计算出各个节点在页面中的确切位置和大小，所有相对测量值都将转换为屏幕上的绝对像素)
+5. 布局完成后，浏览器会立即发出“Paint Setup”和“Paint”事件，将渲染树转换成屏幕上的像素，即绘制页面—**reflow/repaint**
+
+> - 遇到`<script>` 时，会执行并阻塞渲染，因为 JS 有可能改变 DOM 树结构( GUI渲染线程与JS引擎线程互斥 )
+> - 而 img、 video 则是异步加载，不会阻塞渲染
+> - 通常情况下DOM和CSSOM是并行构建的，但是当浏览器遇到一个不带defer或async属性的script标签时，DOM构建将暂停，如果此时又恰巧浏览器尚未完成CSSOM的下载和构建，由于JavaScript可以修改CSSOM，所以需要等CSSOM构建完毕后再执行JS，最后才重新DOM构建
+
+**Load 和 DOMContentLoaded 区别：**
+
+window.onload  事件触发代表页面中的 DOM，CSS，JS，图片已经全部加载完毕。
+
+DOMContentLoaded 事件触发代表初始的 HTML 被完全加载和解析，不需要等待 CSS，JS，图片加载。
+
+```js
+window.addEventListener('load', function () {
+    // 页面的全部资源加载完才会执行，包括图片、视频等
+})
+
+document.addEventListener('DOMContentLoaded', function () {
+    // DOM 渲染完即可执行，此时图片、视频可能还没有加载完
+})
+```
+
+> 推荐阅读：
+>
+> - [深入浅出浏览器渲染原理](https://github.com/ljianshu/Blog/issues/51)
+> - [关键渲染路径](https://github.com/berwin/Blog/issues/29) 👏
+> - [从 8 道面试题看浏览器渲染过程与性能优化](https://juejin.im/post/5e143104e51d45414a4715f7#heading-28)
+> - [How Browsers work ](http://taligarsiel.com/Projects/howbrowserswork1.htm)
+
 ## Event Loop 🌟
 
 ### 栈、队列的基本概念
@@ -33,7 +85,7 @@
 **栈（Stack）** 
 
 - 栈在计算机科学中是限定仅在**表尾**进行**插入**或**删除**操作的线性表。 
-- 栈是一种数据结构，它按照**后进先出**的原则存储数据，**先进入**的数据被压入**栈底**，**最后的数据**在**栈顶**，需要读数据的时候从**栈顶**开始**弹出数据**。
+- 栈是一种数据结构，它按照**后进先出**的原则存储数据，**先进入**的数据被压入**栈底**，**最后的数据**在**栈顶**，需要读数据的时候从**栈顶**开始**弹出数据**。（`LIFO: last in first out`）
 - 栈是只能在**某一端插入**和**删除**的**特殊线性表**。
 
 **队列（Queue）**
@@ -41,7 +93,7 @@
 - 特殊之处在于它只允许在表的前端（`front`）进行**删除**操作，而在表的后端（`rear`）进行**插入**操作，和**栈**一样，**队列**是一种操作受限制的线性表。
 - 进行**插入**操作的端称为**队尾**，进行**删除**操作的端称为**队头**。 队列中没有元素时，称为**空队列**。
 - **队列**的数据元素又称为**队列元素**。在队列中插入一个队列元素称为**入队**，从**队列**中**删除**一个队列元素称为**出队**。
-- 因为队列**只允许**在一端**插入**，在另一端**删除**，所以只有**最早**进入**队列**的元素**才能最先从队列中**删除，故队列又称为**先进先出**（`FIFO—first in first out`）
+- 因为队列**只允许**在一端**插入**，在另一端**删除**，所以只有**最早**进入**队列**的元素**才能最先从队列中**删除，故队列又称为**先进先出**。（`FIFO: first in first out`）
 
 ### 宏认为与微任务
 
@@ -49,7 +101,7 @@
 
 **MacroTask（宏任务）**
 
-在 JavaScript 中，大部分的任务都是在主线程上执行，为了让这些事件有条不紊地进行，JS 引擎需要对它们的执行顺序做一定的安排，V8 其实采用的是一种`队列`的方式来存储这些任务， 即先进来的先执行。
+在 JavaScript 中，大部分的任务都是在主线程上执行，为了让这些事件有条不紊地进行，JS 引擎需要对它们的执行顺序做一定的安排，V8 其实采用的是`队列`的方式来存储这些同步任务， 即先进来的先执行。
 
 - script 全部代码，即 js 脚本执行
 - setTimeout、setInterval、setImmediate(只有IE10支持) 
@@ -58,9 +110,7 @@
 
 **MicroTask（微任务）**
 
-对于每个宏任务而言，其内部都有一个微任务队列。引入微任务的初衷是为了解决异步回调的问题。
-
-如果异步回调也像宏任务一样进行队列的入队操作，那么执行这些回调的时机就是在前面`所有的宏任务`完成之后（先进先出），倘若现在的任务队列非常长，那么异步回调迟迟得不到执行，造成`应用卡顿`。
+如果异步回调也像宏任务一样进行队列的入队操作，那么执行这些回调的时机就是在前面`所有的宏任务`完成之后（先进先出），倘若现在的任务队列非常长，那么异步回调迟迟得不到执行，会造成`应用卡顿`。
 
 为了规避这样的问题，V8 引入了`微任务`的解决方式。在每一个宏任务中定义一个**微任务队列**，当该宏任务执行完成，会检查其中的微任务队列，如果为空则直接执行下一个宏任务，如果不为空，则`依次执行微任务`，执行完成才去执行下一个宏任务。
 
@@ -82,7 +132,7 @@ requestAnimationFrame是GUI渲染之前执行，但在微服务之后，不过re
 
 **Event Loop(事件循环)是指浏览器或`Node`的一种实现`javaScript`单线程运行时不会阻塞的一种机制（JS 运行机制）**，也就是我们经常使用的**异步**的原理。
 
-众所周知 JS 是一门非阻塞单线程语言，同一时间只能执行一个任务，即代码的执行是同步并且阻塞的。
+众所周知 JS 是一门非阻塞的单线程语言，同一时间只能执行一个任务，即代码的执行是同步并且阻塞的。
 
 > 1. 首先是历史原因，在创建 JS 这门语言时，多进程多线程的架构并不流行，硬件支持并不好。
 > 2. 其次是因为多线程的复杂性，多线程操作需要加锁，编码的复杂性会增高。
@@ -90,7 +140,7 @@ requestAnimationFrame是GUI渲染之前执行，但在微服务之后，不过re
 
 > 尽管 HTML5 中有 Web-Worker，但 JS 仍然是单线程的。一切 JavaScript 版的"多线程"都是用单线程模拟出来的。
 
-只有一个主线程，那 javascript 是如何处理函数的调用关系的？答案是——**调用栈**。
+只有一个主线程，那 javascript 是如何处理各种同步与异步函数的调用关系的？答案是——**调用栈**。
 
 ![Event Loop](../Images/browser/eventloop.jpg)
 
@@ -115,8 +165,8 @@ setTimeout(function() {
 
 console.log('script end')
 ```
-上面👆的代码虽然 setTimeout 延时为 0，其实还是异步的。所以 setTimeout 还是会在 script end 之后打印。
-> 而且 HTML5 标准规定这个函数第二个参数不得小于 4 毫秒，不足会自动增加。
+举个🌰，上面👆的代码中虽然 setTimeout 延时为 0，但它还是异步的。所以 setTimeout 还是会在 script end 之后打印。
+> In fact, HTML5 标准规定这个函数第二个参数不得小于 4 毫秒，不足会自动增加。
 
 不同的任务源会被分配到不同的 Task 队列中。
 ```js
@@ -138,6 +188,7 @@ new Promise(resolve => {
 })
 
 console.log('script end')
+// 			 1						2							3						4						5						6
 // script start => Promise => script end => promise1 => promise2 => setTimeout
 ```
 
@@ -145,62 +196,21 @@ console.log('script end')
 
 所以正确的一次 Event loop 顺序是这样的：
 
-1. 一开始整段脚本作为第一个**宏任务**执行
-2. 执行过程中同步代码直接执行，**宏任务**进入宏任务队列，**微任务**进入微任务队列
-3. 当前宏任务执行完出队，检查微任务队列，如果有则依次执行，直到微任务队列为空
+1. 一开始整段脚本作为第一个**宏任务**执行(main script)
+2. 执行过程中同步代码(1)(2)(3)直接执行，**宏任务**进入宏任务队列，**微任务**进入微任务队列
+3. 当前宏任务执行完出队，检查微任务队列，如果有则依次执行(4)(5)，直到微任务队列为空
 4. 必要的话，执行浏览器 UI 线程的渲染工作
 5. 检查是否有Web worker任务，有则执行
-6. 执行队首新的宏任务，回到2，开始下一轮 Event loop，依此循环，直到宏任务和微任务队列都为空
+6. 执行队首新的宏任务(6)，回到2，开始下一轮 Event loop，依此循环，直到宏任务和微任务队列都为空
 
 通过上述的 Event loop 顺序可知，如果宏任务中的异步代码有大量的计算并且需要操作 DOM 的话，为了更快的 界面响应，我们可以把操作 DOM 放入微任务中。
+
+> ⚠️注意：Promise的executor是一个同步函数，即非异步，立即执行的一个函数，因此它(2)应该是和当前的任务一起执行的。而Promise的链式调用then，每次都会在内部生成一个新的Promise，然后执行then，在执行的过程中不断向微任务(microtask)推入新的函数，因此直至微任务的队列清空后才会执行下一波的macrotask。
 
 > 墙裂推荐阅读：
 > - [这一次，彻底弄懂 JavaScript 执行机制](https://juejin.im/post/59e85eebf265da430d571f89)
 > - [面试问到 Event Loop，这样回答最完美](https://mp.weixin.qq.com/s/8xyccve0e9uA2mnk07CAWw) 👏
 > - [Eventloop不可怕，可怕的是遇上Promise](https://juejin.im/post/5c9a43175188252d876e5903) 😫
-
-## 渲染机制
-
-### 加载资源的形式
-
-- 输入 url （或跳转页面） 加载 html
-- 加载 html 中的静态资源 `<img>` `<script>` `<video>`  css 等
-
-### 加载一个资源的过程
-
-- 浏览器根据 DNS 服务器得到域名的 IP 地址
-- 向这个 IP 的服务器发送 http 请求
-- 服务器收到请求，处理并返回 http 请求
-- 浏览器得到返回内容
-
-### 浏览器渲染页面的过程
-
-- 根据 HTML 结构生成 DOM Tree
-- 根据 CSS 生成 CSSOM
-- 将 DOM 和 CSSOM 整合形成 RenderTree
-- 浏览器根据 RenderTree 开始渲染和展示
-- 遇到`<script>` 时，会执行并阻塞渲染，因为 JS 有可能改变 DOM 树结构
-- 而 img、 video 则是异步加载，不会阻塞渲染
-
-### Load 和 DOMContentLoaded 区别
-
-window.onload 
-
-Load 事件触发代表页面中的 DOM，CSS，JS，图片已经全部加载完毕。
-
-DOMContentLoaded 事件触发代表初始的 HTML 被完全加载和解析，不需要等待 CSS，JS，图片加载。
-
-```js
-window.addEventListener('load', function () {
-    // 页面的全部资源加载完才会执行，包括图片、视频等
-})
-
-document.addEventListener('DOMContentLoaded', function () {
-    // DOM 渲染完即可执行，此时图片、视频可能还没有加载完
-})
-```
-
-> 推荐阅读：[你不知道的浏览器页面渲染机制](https://juejin.im/post/5ca0c0abe51d4553a942c17d)
 
 ## 事件机制
 
@@ -316,7 +326,7 @@ console.log(isChrome)
 
 ### Ajax
 
-[Ajax 知识体系大梳理](https://juejin.im/post/58c883ecb123db005311861a)
+> 推荐阅读：[Ajax 知识体系大梳理](https://juejin.im/post/58c883ecb123db005311861a)
 
 ### 跨域
 **同源策略：**
