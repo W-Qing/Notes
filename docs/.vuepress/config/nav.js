@@ -78,7 +78,7 @@ const nav = [
 // },
 {
   text: 'GitHub',
-  link: 'https://github.com/W-Qing',
+  link: 'https://github.com/W-Qing/Notes',
 },
 // {
 //   text: '关于作者',
