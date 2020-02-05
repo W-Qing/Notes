@@ -12,28 +12,28 @@
 
 > 官方计划在 17 版本完全删除这三个函数，只保留 UNSAVE_前缀的三个函数，目的是为了向下兼容，但是对于开发者而言应该尽量避免使用它们，而是使用新增的生命周期函数替代它们
 
+![React 生命周期](../Images/react/lifecycles.png)
+
 目前 React 16.8 +的生命周期分为三个阶段，分别是挂载阶段、更新阶段、卸载阶段
 
 **挂载阶段：**
 
-- constructor: 构造函数，最先被执行，我们通常在构造函数里初始化 state 对象或者给自定义方法绑定 this
-- getDerivedStateFromProps: static getDerivedStateFromProps(nextProps, prevState), 这是个静态方法，当我们接收到新的属性想去修改我们 state，可以使用 getDerivedStateFromProps
-- render: render 函数是纯函数，只返回需要渲染的东西，不应该包含其它的业务逻辑，可以返回原生的 DOM、React 组件、Fragment、Portals、字符串和数字、Boolean 和 null 等内容
-- componentDidMount: 组件装载之后调用，此时我们可以获取到 DOM 节点并操作，比如对 canvas，svg 的操作，服务器请求，订阅都可以写在这个里面，但是记得在 componentWillUnmount 中取消订阅
+- `constructor` 构造函数，最先被执行，我们通常在构造函数里初始化 state 对象或者给自定义方法绑定 this。
+- `getDerivedStateFromProps` 当我们接收到新的属性，想去修改我们 state 时，可以使用这个静态方法 static getDerivedStateFromProps(nextProps, prevState)。
+- `render` render 函数是纯函数，只返回需要渲染的东西，不应该包含其它的业务逻辑。可以返回原生的 DOM、React 组件、Fragment、Portals、字符串和数字、Boolean 和 null 等内容。
+- `componentDidMount` 组件装载之后调用，此时我们可以获取到 DOM 节点并操作，比如对 canvas，svg 的操作，服务器请求，订阅都可以写在这个里面，但是记得要在 componentWillUnmount 中取消订阅。
 
 **更新阶段：**
 
-- getDerivedStateFromProps: 此方法在更新跟挂载阶段都可能会调用
-- shouldComponentUpdate: shouldComponentUpdate(nextProps, nextState), 有两个参数 nextProps 和 nextState，表示新的属性和变化之后的 state，返回一个布尔值，true 表示会触发重新渲染，false 表示不会触发重新渲染，默认返回 true, 我们通常利用此生命周期来优化 React 程序性能
+- getDerivedStateFromProps: 此方法在更新跟挂载阶段都可能会调用。
+- `shouldComponentUpdate`  这个方法有两个参数(nextProps, nextState)，表示新的属性和变化之后的 state，返回一个布尔值，默认返回 true 表示会触发重新渲染，false 则不会触发。我们通常利用此生命周期来优化 React 程序性能
 - render: 更新阶段也会触发此生命周期
-- getSnapshotBeforeUpdate: getSnapshotBeforeUpdate(prevProps, prevState), 这个方法在 render 之后，componentDidUpdate 之前调用，有两个参数 prevProps 和 prevState，表示之前的属性和之前的 state，这个函数有一个返回值，会作为第三个参数传给 componentDidUpdate，如果你不想要返回值，可以返回 null，此生命周期必须与 componentDidUpdate 搭配使用
-- componentDidUpdate: componentDidUpdate(prevProps, prevState, snapshot), 该方法在 getSnapshotBeforeUpdate 方法之后被调用，有三个参数 prevProps，prevState，snapshot，表示之前的 props，之前的 state，和 snapshot。第三个参数是 getSnapshotBeforeUpdate 返回的，如果触发某些回调函数时需要用到 DOM 元素的状态，则将对比或计算的过程迁移至 getSnapshotBeforeUpdate，然后在 componentDidUpdate 中统一触发回调或更新状态。
+- `getSnapshotBeforeUpdate` 这个方法在 render 之后，componentDidUpdate 之前调用。也有两个参数(prevProps, prevState)，表示之前的属性和之前的 state，这个函数有一个返回值，会作为第三个参数传给 componentDidUpdate，如果你不想要返回值，可以返回 null，此生命周期必须与 componentDidUpdate 搭配使用。
+- `componentDidUpdate` 该方法在 getSnapshotBeforeUpdate 方法之后被调用，有三个参数(prevProps, prevState, snapshot)，分别表示之前的 props，之前的 state，和 snapshot。第三个参数是 getSnapshotBeforeUpdate 返回的，如果触发某些回调函数时需要用到 DOM 元素的状态，则将对比或计算的过程迁移至 getSnapshotBeforeUpdate，然后在 componentDidUpdate 中统一触发回调或更新状态。
 
 **卸载阶段：**
 
-- componentWillUnmount: 当我们的组件被卸载或者销毁了就会调用，我们可以在这个函数里去清除一些定时器，取消网络请求，清理无效的 DOM 元素等垃圾清理工作
-
-![React 生命周期](../Images/react/lifecycles.png)
+- `componentWillUnmount` 当组件被卸载或者销毁时就会调用，可以在这个函数里去做清除定时器，取消网络请求，清理无效的 DOM 元素等垃圾清理工作。
 
 ## 请求应该放在哪个生命周期中？
 React 的异步请求到底应该放在哪个生命周期里，有人认为在 componentWillMount 中可以提前进行异步请求，避免白屏，其实这个观点是有问题的。
