@@ -16,7 +16,7 @@
 
 ## 常见内核
 
-浏览器的内核是指支持浏览器运行的最核心的程序，分为两个部分：一是渲染引擎，另一个是JS引擎。
+浏览器的内核是指支持浏览器运行的最核心的程序，分为两个部分：一是渲染引擎，另一个是 JS 引擎。
 
 渲染引擎在不同的浏览器中也不是都相同的，目前市面上常见的浏览器内核可以分为这四种：Trident（IE）、Gecko（火狐）、Blink（Chrome、Opera）、Webkit（Safari）。
 
@@ -45,15 +45,36 @@
 
 **浏览器渲染页面的过程：**
 
-1. 解析 HTML 结构生成DOM树形结构—**DOM Tree**
-2. 解析CSS，生成CSS规则树—**CSSOM Tree**
-3. 解析完成后，浏览器引擎会通过 DOM API 和 CSSOM API 来操作 DOM Tree 和CSSOM Tree，组合形成渲染树—**Render Tree**
-4. 根据渲染树来进行布局—**Layout** (计算出各个节点在页面中的确切位置和大小，所有相对测量值都将转换为屏幕上的绝对像素)
+1. 解析 HTML 结构生成 DOM 树形结构—**DOM Tree**
+2. 解析 CSS，生成 CSS 规则树—**CSSOM Tree**
+3. 解析完成后，浏览器引擎会通过 DOM API 和 CSSOM API 来操作 DOM Tree 和 CSSOM Tree，组合形成渲染树—**Render Tree**
+4. 根据渲染树来进行布局—**Layout** （计算出各个节点在页面中的确切位置和大小，所有相对测量值都将转换为屏幕上的绝对像素）
 5. 布局完成后，浏览器会立即发出“Paint Setup”和“Paint”事件，将渲染树转换成屏幕上的像素，即绘制页面—**reflow/repaint**
 
-> - 遇到`<script>` 时，会执行并阻塞渲染，因为 JS 有可能改变 DOM 树结构( GUI渲染线程与JS引擎线程互斥 )
+> - 遇到`<script>` 时，会执行并阻塞渲染，因为 JS 有可能改变 DOM 树结构 ( GUI 渲染线程与 JS 引擎线程互斥 )
 > - 而 img、 video 则是异步加载，不会阻塞渲染
-> - 通常情况下DOM和CSSOM是并行构建的，但是当浏览器遇到一个不带defer或async属性的script标签时，DOM构建将暂停，如果此时又恰巧浏览器尚未完成CSSOM的下载和构建，由于JavaScript可以修改CSSOM，所以需要等CSSOM构建完毕后再执行JS，最后才重新DOM构建
+> - 通常情况下 DOM 和 CSSOM 是并行构建的，但是当浏览器遇到一个不带 defer 或 async 属性的 script 标签时，DOM 构建将暂停，如果此时又恰巧浏览器尚未完成 CSSOM 的下载和构建，由于 JavaScript 可以修改 CSSOM，所以需要等 CSSOM 构建完毕后再执行 JS，最后才重新进行 DOM 构建
+
+**浏览器的重排与重绘**
+
+区别：
+
+- 重排：部分渲染树（或者整个渲染树）需要重新分析，并且节点尺寸需要重新计算，表现为重新生成布局，重新排列元素
+- 重绘：节点的几何属性发生改变或者样式发生改变，例如改变元素背景色时，屏幕上的部分内容需要更新，表现为某些元素的外观被改变
+
+单单改变元素的外观，肯定不会引起网页重新生成布局，但当浏览器完成重排之后，将会重新绘制受到此次重排影响的部分。即：『重绘』不一定会出现『重排』，『重排』必然会出现『重绘』。
+
+重排和重绘代价是高昂的，如果处理不好，它们会使 UI 展示变得迟缓，破坏用户体验。
+
+虽然任何改变用来构建渲染树的信息都会导致一次重排或重绘，但可以通过几种方法尽量减少重排或重绘：
+
+1. 通过改变 class 的方式来集中改变样式
+2. 通过 createDocumentFragment 创建一个游离于 DOM 树之外的节点，然后在此节点上批量操作，最后插入 DOM 树中，因此只触发一次重排
+3. 使用 CSS 的 will-change 属性将元素提升为合成层
+
+> 关于合成层的详解请移步 [无线性能优化：Composite](https://fed.taobao.org/blog/2016/04/26/performance-composite/)
+
+两者相比之下显然重排的性能影响更大，在两者无法避免的情况下应优先选择代价更小的重绘。
 
 **Load 和 DOMContentLoaded 区别：**
 
@@ -104,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
 在 JavaScript 中，大部分的任务都是在主线程上执行，为了让这些事件有条不紊地进行，JS 引擎需要对它们的执行顺序做一定的安排，V8 其实采用的是`队列`的方式来存储这些同步任务， 即先进来的先执行。
 
 - script 全部代码，即 js 脚本执行
-- setTimeout、setInterval、setImmediate(只有IE10支持) 
+- setTimeout、setInterval、setImmediate（只有 IE10 支持） 
 - I/O 用户交互、网络请求、文件读写完成事件等
 - UI rendering 渲染事件
 
@@ -117,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
 - Promise、fetch API
 - Object.observe （废弃）
 - MutationObserver
-- process.nextTick（Node独有）
+- process.nextTick（Node 独有）
 - V8 的垃圾回收
 
 **requestAnimationFrame**
@@ -126,11 +147,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 > `window.requestAnimationFrame()` 告诉浏览器——你希望执行一个动画，并且要求浏览器在下次重绘之前调用指定的回调函数更新动画。该方法需要传入一个回调函数作为参数，该回调函数会在浏览器下一次重绘之前执行。
 
-requestAnimationFrame是GUI渲染之前执行，但在微服务之后，不过requestAnimationFrame不一定会在当前帧必须执行，由浏览器根据当前的策略自行决定在哪一帧执行。
+requestAnimationFrame 是 GUI 渲染之前执行，但在微服务之后，不过 requestAnimationFrame 不一定会在当前帧必须执行，由浏览器根据当前的策略自行决定在哪一帧执行。
 
 ### 浏览器端的 Event Loop
 
-**Event Loop(事件循环)是指浏览器或`Node`的一种实现`javaScript`单线程运行时不会阻塞的一种机制（JS 运行机制）**，也就是我们经常使用的**异步**的原理。
+**Event Loop（事件循环）是指浏览器或`Node`的一种实现`javaScript`单线程运行时不会阻塞的一种机制（JS 运行机制）**，也就是我们经常使用的**异步**的原理。
 
 众所周知 JS 是一门非阻塞的单线程语言，同一时间只能执行一个任务，即代码的执行是同步并且阻塞的。
 
@@ -144,17 +165,17 @@ requestAnimationFrame是GUI渲染之前执行，但在微服务之后，不过re
 
 ![Event Loop](../Images/browser/eventloop.jpg)
 
-单线程的运行环境有且只有一个 `call-stack` 调用栈(执行栈)，所有的任务都会被放到调用栈等待浏览器的主线程执行。
+单线程的运行环境有且只有一个 `call-stack` 调用栈（执行栈），所有的任务都会被放到调用栈等待浏览器的主线程执行。
 
-调用栈采用的是后进先出(LIFO)的规则，当一个函数被执行的时候，它会被添加到栈的顶部(如果它的函数体内有其他函数，则将新的函数加到栈顶)，当函数在调用栈内被执行完成后，就会从栈顶移出，直到栈内被清空。
+调用栈采用的是后进先出 (LIFO) 的规则，当一个函数被执行的时候，它会被添加到栈的顶部（如果它的函数体内有其他函数，则将新的函数加到栈顶），当函数在调用栈内被执行完成后，就会从栈顶移出，直到栈内被清空。
 
 当调用栈执行完毕之后，就会在队列里面找任务，如果有微任务，就会先执行微任务，再去执行宏任务。
 
-**事件循环：** 就是同步任务进入主线程，异步任务加入到任务队列中。等主线程的任务执行完就去执行任务队列中的任务，这个过程会不断重复。**所有同步任务都在主线程上执行，形成一个执行栈。主线程之外, 存在一个任务队列(task queue), 异步任务有了运行结果会在任务队列之中放置一个任务。执行栈中的所有同步任务执行完毕后读取任务队列(先读取微任务、宏任务)不断重复上面的第三步。**
+**事件循环：** 就是同步任务进入主线程，异步任务加入到任务队列中。等主线程的任务执行完就去执行任务队列中的任务，这个过程会不断重复。**所有同步任务都在主线程上执行，形成一个执行栈。主线程之外，存在一个任务队列 (task queue), 异步任务有了运行结果会在任务队列之中放置一个任务。执行栈中的所有同步任务执行完毕后读取任务队列（先读取微任务、宏任务）不断重复上面的第三步。**
 
 > 本质上来说 JS 中的异步还是同步行为
 
-有点晕？看这里👉🏻[到底什么是Event Loop呢?](https://www.bilibili.com/video/av74599059?t=960)👀
+有点晕？看这里👉🏻[到底什么是 Event Loop 呢？](https://www.bilibili.com/video/av74599059?t=960)👀
 
 ```js
 console.log('script start')
@@ -196,21 +217,21 @@ console.log('script end')
 
 所以正确的一次 Event loop 顺序是这样的：
 
-1. 一开始整段脚本作为第一个**宏任务**执行(main script)
-2. 执行过程中同步代码(1)(2)(3)直接执行，**宏任务**进入宏任务队列，**微任务**进入微任务队列
-3. 当前宏任务执行完出队，检查微任务队列，如果有则依次执行(4)(5)，直到微任务队列为空
+1. 一开始整段脚本作为第一个**宏任务**执行 (main script)
+2. 执行过程中同步代码 (1)(2)(3) 直接执行，**宏任务**进入宏任务队列，**微任务**进入微任务队列
+3. 当前宏任务执行完出队，检查微任务队列，如果有则依次执行 (4)(5)，直到微任务队列为空
 4. 必要的话，执行浏览器 UI 线程的渲染工作
-5. 检查是否有Web worker任务，有则执行
-6. 执行队首新的宏任务(6)，回到2，开始下一轮 Event loop，依此循环，直到宏任务和微任务队列都为空
+5. 检查是否有 Web worker 任务，有则执行
+6. 执行队首新的宏任务 (6)，回到 2，开始下一轮 Event loop，依此循环，直到宏任务和微任务队列都为空
 
 通过上述的 Event loop 顺序可知，如果宏任务中的异步代码有大量的计算并且需要操作 DOM 的话，为了更快的 界面响应，我们可以把操作 DOM 放入微任务中。
 
-> ⚠️注意：Promise的executor是一个同步函数，即非异步，立即执行的一个函数，因此它(2)应该是和当前的任务一起执行的。而Promise的链式调用then，每次都会在内部生成一个新的Promise，然后执行then，在执行的过程中不断向微任务(microtask)推入新的函数，因此直至微任务的队列清空后才会执行下一波的macrotask。
+> ⚠️注意：Promise 的 executor 是一个同步函数，即非异步，立即执行的一个函数，因此它 (2) 应该是和当前的任务一起执行的。而 Promise 的链式调用 then，每次都会在内部生成一个新的 Promise，然后执行 then，在执行的过程中不断向微任务 (microtask) 推入新的函数，因此直至微任务的队列清空后才会执行下一波的 macrotask。
 
 > 墙裂推荐阅读：
 > - [这一次，彻底弄懂 JavaScript 执行机制](https://juejin.im/post/59e85eebf265da430d571f89)
 > - [面试问到 Event Loop，这样回答最完美](https://mp.weixin.qq.com/s/8xyccve0e9uA2mnk07CAWw) 👏
-> - [Eventloop不可怕，可怕的是遇上Promise](https://juejin.im/post/5c9a43175188252d876e5903) 😫
+> - [Eventloop 不可怕，可怕的是遇上 Promise](https://juejin.im/post/5c9a43175188252d876e5903) 😫
 
 ## 垃圾回收机制
 
@@ -242,7 +263,7 @@ JavaScript 会在创建变量（对象，字符串等）时分配内存，并且
 
 V8 的 GC （Garbage Collection）算法策略基于分代式回收机制，该机制又基于**世代假说。**
 
-该假说有两个特点:
+该假说有两个特点：
 
 - 大部分新生对象倾向于早死
 - 不死的对象，会活得更久
@@ -258,13 +279,13 @@ V8 的 GC （Garbage Collection）算法策略基于分代式回收机制，该�
 
 在介绍垃圾回收算法之前，先了解一个概念，全停顿：
 
-为避免应用逻辑与垃圾回收器看到的情况不一致，垃圾回收算法在执行前，需要将应用逻辑暂停，执行完垃圾回收后再执行应用逻辑，这种行为称为 「全停顿」。例如，如果一次 GC 需要50ms，应用逻辑就会暂停50ms。
+为避免应用逻辑与垃圾回收器看到的情况不一致，垃圾回收算法在执行前，需要将应用逻辑暂停，执行完垃圾回收后再执行应用逻辑，这种行为称为 「全停顿」。例如，如果一次 GC 需要 50ms，应用逻辑就会暂停 50ms。
 
-#### 新生代Scavenge 算法
+#### 新生代 Scavenge 算法
 
-新生代中的对象主要通过 Scavenge 算法进行垃圾回收。Scavenge 的具体实现，主要采用了Cheney算法。
+新生代中的对象主要通过 Scavenge 算法进行垃圾回收。Scavenge 的具体实现，主要采用了 Cheney 算法。
 
-![Scavenge算法](../Images/browser/scavenge.png)
+![Scavenge 算法](../Images/browser/scavenge.png)
 
 1. 在新生代空间中，将堆内存空间分为两部分（semispace）。
 2. 在这两个空间中，必定有一个空间是使用的（From 空间），另一个空间是空闲的（To 空间）。
@@ -285,11 +306,11 @@ Scavenge/Cheney 算法的缺点是，它的算法机制决定了只能利用一�
 
 1. 对象是否经历过一次 Scavenge 算法回收。👆
 
-   > 对象从 From 空间复制 To 空间时，会**检查对象的内存地址**来判断对象是否已经经过一次 Scavenge回收。若经历过，则将对象从 From 空间复制到老生代中；若没有经历，则复制到 To 空间。
+   > 对象从 From 空间复制 To 空间时，会**检查对象的内存地址**来判断对象是否已经经过一次 Scavenge 回收。若经历过，则将对象从 From 空间复制到老生代中；若没有经历，则复制到 To 空间。
 
-2. To 空间的对象内存使用占比是否超过25%的限制。
+2. To 空间的对象内存使用占比是否超过 25%的限制。
 
-   > 当对象从From 空间复制到 To 空间时，若 To 空间使用超过 25%，则对象直接晋升到老生代中。设置为25%的比例的原因是，当完成 Scavenge 回收后，To 空间将翻转成From 空间，继续进行对象内存的分配。若占比过大，将影响后续内存分配。
+   > 当对象从 From 空间复制到 To 空间时，若 To 空间使用超过 25%，则对象直接晋升到老生代中。设置为 25%的比例的原因是，当完成 Scavenge 回收后，To 空间将翻转成 From 空间，继续进行对象内存的分配。若占比过大，将影响后续内存分配。
 
 老生代中的对象有两个特点，第一是存活对象多，第二个存活时间长。
 
@@ -306,15 +327,15 @@ Mark-Sweep，分为标记和清除两个阶段：
 
 清除对象后会造成堆内存出现碎片的情况，为了提高对内存的利用，当碎片超过一定限制后会启动 Mark-Compact 压缩算法。
 
-> Mark-Compact 是在 Mark-Sweep 算法上进行了改进，标记阶段与Mark-Sweep相同，但是对未标记的对象处理方式不同。Mark-Sweep是对未标记的对象立即进行回收，Mark-Compact则是将存活的对象移动到一边，直到所有对象都移动完成然后清理掉不需要的内存。
+> Mark-Compact 是在 Mark-Sweep 算法上进行了改进，标记阶段与 Mark-Sweep 相同，但是对未标记的对象处理方式不同。Mark-Sweep 是对未标记的对象立即进行回收，Mark-Compact 则是将存活的对象移动到一边，直到所有对象都移动完成然后清理掉不需要的内存。
 
-由于Mark-Compact需要移动对象，所以执行速度上，比Mark-Sweep要慢。所以，V8主要使用Mark-Sweep算法，然后在当空间内存分配不足时，采用Mark-Compact算法。
+由于 Mark-Compact 需要移动对象，所以执行速度上，比 Mark-Sweep 要慢。所以，V8 主要使用 Mark-Sweep 算法，然后在当空间内存分配不足时，采用 Mark-Compact 算法。
 
 **增量标记（Incremental Marking）**
 
 在新生代中，由于存活对象少，垃圾回收效率高，全停顿时间短，造成的影响小。但是老生代中，存活对象多，垃圾回收时间长，全停顿造成的影响大。长时间的 GC，会导致应用暂停和无响应，将会导致糟糕的用户体验。
 
-为了减少全停顿时间过长带来的性能问题，2011 年，V8对标记进行了优化，从 stop-the-world 标记切换到增量标记，即将一次停顿进行的标记工作分解为更小的模块，可以让 JS 应用逻辑在模块间隙执行一会，这样交替多次后完成标记，从而不至于让应用出现停顿情况。改进后的标记方式，最大停顿时间减少到原来的1/6。
+为了减少全停顿时间过长带来的性能问题，2011 年，V8 对标记进行了优化，从 stop-the-world 标记切换到增量标记，即将一次停顿进行的标记工作分解为更小的模块，可以让 JS 应用逻辑在模块间隙执行一会，这样交替多次后完成标记，从而不至于让应用出现停顿情况。改进后的标记方式，最大停顿时间减少到原来的 1/6。
 
 **并发标记**
 
@@ -326,11 +347,11 @@ Mark-Sweep，分为标记和清除两个阶段：
 
 - 滥用闭包
 
-- 滥用全局变量：直接用全局变量赋值，在函数中滥用this指向全局对象
+- 滥用全局变量：直接用全局变量赋值，在函数中滥用 this 指向全局对象
 - 不销毁定时器和回调
-- DOM引用不规范，很多时候, 我们对 Dom 的操作, 会把 Dom 的引用保存在一个数组或者 Map 中，往往无法对其进行内存回收。
+- DOM 引用不规范，很多时候，我们对 Dom 的操作，会把 Dom 的引用保存在一个数组或者 Map 中，往往无法对其进行内存回收。
 
-> ES6中引入 WeakSet 和 WeakMap 两个新的概念，来解决引用造成的内存回收问题. WeakSet 和 WeakMap 对于值的引用可以忽略不计, 他们对于值的引用是弱引用,内存回收机制, 不会考虑这种引用. 当其他引用被消除后, 引用就会从内存中被释放。
+> ES6 中引入 WeakSet 和 WeakMap 两个新的概念，来解决引用造成的内存回收问题。WeakSet 和 WeakMap 对于值的引用可以忽略不计，他们对于值的引用是弱引用，内存回收机制，不会考虑这种引用。当其他引用被消除后，引用就会从内存中被释放。
 
 ## 事件机制
 
@@ -417,10 +438,10 @@ node.addEventListener(
 
 BOM（浏览器对象模型）是浏览器本身的一些信息的设置和获取，例如获取浏览器的宽度、高度，设置让浏览器跳转到哪个地址。
 
-- window.screen对象：包含有关用户屏幕的信息
-- window.location对象：用于获得当前页面的地址(URL)，并把浏览器重定向到新的页面
-- window.history对象：浏览历史的前进后退等
-- window.navigator对象：常常用来获取浏览器信息、是否移动端访问等等
+- window.screen 对象：包含有关用户屏幕的信息
+- window.location 对象：用于获得当前页面的地址 (URL)，并把浏览器重定向到新的页面
+- window.history 对象：浏览历史的前进后退等
+- window.navigator 对象：常常用来获取浏览器信息、是否移动端访问等等
 
 举几个例子🌰
 
@@ -435,7 +456,7 @@ console.log(location.search) // ?a=10&b=10
 console.log(location.hash) // #some
 ```
 - 复制代码另外，还有调用浏览器的前进、后退功能等 `history.back()`与`history.forward()`
-- 复制代码获取浏览器特性（即俗称的UA）然后识别客户端，例如判断是不是 Chrome 浏览器
+- 复制代码获取浏览器特性（即俗称的 UA）然后识别客户端，例如判断是不是 Chrome 浏览器
 ```js
 var ua = navigator.userAgent
 var isChrome = ua.indexOf('Chrome')
@@ -453,10 +474,9 @@ console.log(isChrome)
 
 因为浏览器出于安全考虑，限制了从同一个源加载的文档或脚本与来自另一个源的资源进行交互，即同源策略，这是一个用于隔离潜在恶意文件的重要安全机制。
 
-同源是指"协议+域名+端口"三者相同，即便两个不同的域名指向同一个ip地址，也非同源。
+同源是指"协议+域名+端口"三者相同，即便两个不同的域名指向同一个 ip 地址，也非同源。
 
 协议、域名或者端口有一个不同就算跨域，而且所有的跨域请求都必须经过信息提供方允许，否则 Ajax 请求就会失败。
-
 
 浏览器中的大部分内容都是受同源策略限制的，但是以下三个 HTML 标签可以不受限制，可以跨域加载资源：
 
@@ -478,7 +498,7 @@ console.log(isChrome)
 
 **1. JSONP**
 
-jsonp本质上是一个Hack，它的原理就是利用`<script>`标签不受同源策略限制的特性，通过 `<script>` 标签指向一个需要访问的地址并提供一个回调函数来接收数据，从而实现跨域操作。
+jsonp 本质上是一个 Hack，它的原理就是利用`<script>`标签不受同源策略限制的特性，通过 `<script>` 标签指向一个需要访问的地址并提供一个回调函数来接收数据，从而实现跨域操作。
 
 ```js
 <script src="http://domain/api?param1=a&param2=b&callback=jsonp"></script>
@@ -524,7 +544,7 @@ jsonp('http://xxx', 'callback', function(value) {
 
 **2. CORS**
 
-CORS 是目前主流的跨域解决方案，跨域资源共享(CORS) 是一种机制，它使用额外的 HTTP 头来告诉浏览器 让运行在一个 origin (domain) 上的Web应用被准许访问来自不同源服务器上的指定的资源。当一个资源从与该资源本身所在的服务器不同的域、协议或端口请求一个资源时，资源会发起一个跨域 HTTP 请求。
+CORS 是目前主流的跨域解决方案，跨域资源共享 (CORS) 是一种机制，它使用额外的 HTTP 头来告诉浏览器 让运行在一个 origin (domain) 上的 Web 应用被准许访问来自不同源服务器上的指定的资源。当一个资源从与该资源本身所在的服务器不同的域、协议或端口请求一个资源时，资源会发起一个跨域 HTTP 请求。
 
 CORS 需要浏览器和后端同时支持。浏览器会自动进行 CORS 通信，实现 CORS 通信的关键是后端。只要后端实现了 CORS，就实现了跨域。
 
@@ -543,7 +563,7 @@ response.setHeader("Access-Control-Allow-Origin", "http://test.com") // 不建�
 
 **其它跨域方案**
 
-1. HTML5 XMLHttpRequest 有一个API，`postMessage()`方法允许来自不同源的脚本采用异步方式进行有限的通信，可以实现跨文本档、多窗口、跨域消息传递。
+1. HTML5 XMLHttpRequest 有一个 API，`postMessage()`方法允许来自不同源的脚本采用异步方式进行有限的通信，可以实现跨文本档、多窗口、跨域消息传递。
 
    ```js
    // 这种方式通常用于获取嵌入页面中的第三方页面数据。
@@ -562,11 +582,11 @@ response.setHeader("Access-Control-Allow-Origin", "http://test.com") // 不建�
 
 2. WebSocket 是一种双向通信协议，在建立连接之后，WebSocket 的 server 与 client 都能主动向对方发送或接收数据，连接建立好了之后 client 与 server 之间的双向通信就与 HTTP 无关了，因此可以跨域。
 
-3. window.name + iframe：window.name属性值在不同的页面（甚至不同域名）加载后依旧存在，并且可以支持非常长的 name 值，我们可以利用这个特点进行跨域。
+3. window.name + iframe：window.name 属性值在不同的页面（甚至不同域名）加载后依旧存在，并且可以支持非常长的 name 值，我们可以利用这个特点进行跨域。
 
-4. location.hash + iframe：a.html欲与c.html跨域相互通信，通过中间页b.html来实现。 三个页面，不同域之间利用iframe的location.hash传值，相同域之间直接js访问来通信。
+4. location.hash + iframe：a.html 欲与 c.html 跨域相互通信，通过中间页 b.html 来实现。 三个页面，不同域之间利用 iframe 的 location.hash 传值，相同域之间直接 js 访问来通信。
 
-5. document.domain + iframe： 该方式只能用于二级域名相同的情况下，比如 `a.test.com` 和 `b.test.com` 适用于该方式。我们只需要给页面添加 `document.domain = 'test.com'` 表示二级域名都相同就可以实现跨域，两个页面都通过js强制设置`document.domain`为基础主域，就实现了同域。
+5. document.domain + iframe： 该方式只能用于二级域名相同的情况下，比如 `a.test.com` 和 `b.test.com` 适用于该方式。我们只需要给页面添加 `document.domain = 'test.com'` 表示二级域名都相同就可以实现跨域，两个页面都通过 js 强制设置`document.domain`为基础主域，就实现了同域。
 
 > 推荐阅读：[九种跨域方式](https://juejin.im/post/5c23993de51d457b8c1f4ee1#heading-19)
 
@@ -622,7 +642,3 @@ response.setHeader("Access-Control-Allow-Origin", "http://test.com") // 不建�
 | same-site |    规定浏览器不能在跨域请求中携带 Cookie，减少 CSRF 攻击     |
 
 > 推荐阅读：[聊一聊前端存储那些事](https://segmentfault.com/a/1190000005927232)
-
-### Service Worker
-
-**Waiting for the update**
