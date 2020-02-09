@@ -4,8 +4,8 @@ HTTP 协议是个无状态协议，不会保存状态。
 
 ## HTTP 有哪些方法？
 
-- HTTP1.0 定义了三种请求方法： GET, POST 和 HEAD 方法
-- HTTP1.1 新增了五种请求方法：OPTIONS, PUT, DELETE, TRACE 和 CONNECT
+- HTTP 1.0 定义了三种请求方法： GET，POST 和 HEAD 方法
+- HTTP1.1 新增了五种请求方法：OPTIONS，PUT，DELETE，TRACE 和 CONNECT
 
 ## 这些方法的具体作用是什么？
 

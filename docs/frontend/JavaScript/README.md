@@ -376,7 +376,7 @@ var obj = {
 
 我们在调用 `new` 的过程中会发生以下四件事情：
 
-1. 新生成了一个对象
+1. 创建成一个新对象
 2. 链接到原型
 3. 绑定 this
 4. 返回新对象
@@ -389,9 +389,9 @@ function create() {
     let obj = new Object()
     // 获得构造函数
     let Con = [].shift.call(arguments)
-    // 链接到原型
+    // 链接到构造函数的原型
     obj.__proto__ = Con.prototype
-    // 绑定 this，执行构造函数
+    // 执行构造函数，绑定 this
     let result = Con.apply(obj, arguments)
     // 确保 new 出来的是个对象
     return typeof result === 'object' ? result : obj
