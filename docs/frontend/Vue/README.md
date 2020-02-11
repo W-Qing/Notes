@@ -152,7 +152,7 @@ export function nextTick(cb?: Function, ctx?: Object) {
 
 ## 如何理解 Vue 的响应式系统？
 
-![2019-07-22-16-29-59](https://xiaomuzhu-image.oss-cn-beijing.aliyuncs.com/d5bfe6c9f35554783bd618edc15ec274.png)
+![responsiveSystem](../Images/vue/responsiveSystem.png)
 
 响应式系统简述：
 
@@ -195,5 +195,3 @@ Vue 是 pull+push 的方式侦测变化的，在一开始就知道那个组件�
 
 - 准确：如果不加`key`，那么 vue 会选择复用节点 (Vue 的就地更新策略），导致之前节点的状态被保留下来，会产生一系列的 bug。
 - 快速：key 的唯一性可以被 Map 数据结构充分利用，相比于遍历查找的时间复杂度 O(n)，Map 的时间复杂度仅仅为 O(1)。
-
-![2019-07-26-14-52-57](https://xiaomuzhu-image.oss-cn-beijing.aliyuncs.com/8edce49381a9f6198faa60d7af73f74b.png)

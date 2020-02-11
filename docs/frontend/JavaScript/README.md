@@ -836,7 +836,7 @@ myDate.test()
 
 如果你使用编译过得代码调用 `myDate.test()` 你会惊奇地发现出现了报错
 
-![img](https://yck-1254263422.cos.ap-shanghai.myqcloud.com/blog/2019-06-01-043725.png)
+`Uncaught TypeError: this is not a Date object`
 
 因为在 JS 底层有限制，如果不是由 `Date` 构造出来的实例的话，是不能调用 `Date` 里的函数的。所以这也侧面的说明了：**ES6 中的 class 继承与 ES5 中的一般继承写法是不同的**。
 

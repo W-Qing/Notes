@@ -55,7 +55,7 @@ css 引入伪类和伪元素概念是为了格式化文档树以外的信息。�
 
 当浏览器对一个网页文档进行布局（layout）的时候，其渲染引擎会根据标准之一的 CSS 基础框盒模型（CSS basic box model），将所有元素表示为一个个矩形的盒子（box）。CSS 决定这些盒子的大小、位置以及属性（例如颜色、背景、边框尺寸…）。
 
-![2019-06-14-04-15-49](https://xiaomuzhu-image.oss-cn-beijing.aliyuncs.com/14650bf5fbb24066cea1dc1714d52a5b.png)
+![盒模型](../Images/css/box.png)
 
 盒模型由 content（内容）、padding（内边距）、border（边框）、margin（外边距）四部分组成。
 
