@@ -29,6 +29,14 @@ module.exports = {
     ['@vuepress/google-analytics', {
       ga: 'UA-136843234-2'
     }],
+    // 你可以多次使用这个插件
+    [
+      'vuepress-plugin-container',
+      {
+        type: 'tip',
+        defaultTitle: '',
+      },
+    ],
     // routeConfig,
   ],
 };
