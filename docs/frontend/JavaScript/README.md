@@ -118,13 +118,15 @@ true instanceof Boolean     //false
 
 **手动实现一下 `instanceof`：**
 
-```js
+1. 首先获取类型的原型
+2. 然后获得对象的原型
+3. 最后一直循环判断对象的原型是否等于类型的原型，直到对象原型为 null，因为原型链最终为 null。
+
+```js{2,4,8}
 function instanceof(left, right) {
-    // 获得类型的原型
-    let prototype = right.prototype
-    // 获得对象的原型
-    left = left.__proto__
-    // 判断对象的类型是否等于类型的原型
+    let prototype = right.prototype;
+    
+    left = left.__proto__;
     while (true) {
     	if (left === null)
     		return false
@@ -895,93 +897,127 @@ Object.setPrototypeOf(MyData.prototype, Date.prototype)
 
 ## call、apply、bind
 
-首先说下前两者的区别。
+首先说下前两者的区别：
 
-`call` 和 `apply` 都是为了解决改变 `this` 的指向。作用都是相同的，只是传参的方式不同。
+::: tip
 
-除了第一个参数外，`call` 可以接收一个参数列表，`apply` 只接受一个参数数组。
+- `call` 和 `apply` 都是为了解决改变 `this` 的指向。作用都是相同的，只是传参的方式不同。
+- 除了第一个参数外，`call` 可以接收一个参数列表，`apply` 只接受一个参数数组。
+
+:::
 
 ```js
 let a = {
     value: 1
 }
 function getValue(name, age) {
-    console.log(name)
-    console.log(age)
+    console.log(name,age)
     console.log(this.value)
 }
 getValue.call(a, 'mintnoii', '22')
 getValue.apply(a, ['mintnoii', '22'])
 ```
 
-### 模拟实现 call 和 apply
+### 手动实现 call 和 apply
 
-可以从以下几点来考虑如何实现
+可以从以下几点来考虑如何实现：
 
-- 不传入第一个参数，那么默认为 `window`
-- 改变了 this 指向，让新的对象可以执行该函数。那么思路可以变成给新的对象添加一个函数，然后在执行完以后删除
+- 不传入第一个参数，那么上下文默认为 `window`。
+- 改变了`this`指向，让新的对象可以执行该函数，并能接受参数。
+- 那么思路可以变成给新的对象添加一个函数，然后在执行完以后删除。
 
 ```js
 Function.prototype.myCall = function (context) {
-  var context = context || window
-  // 给 context 添加一个属性，即 fn
-  context.fn = this
-  // getValue.call(a, 'mintnoii', '22') => a.fn = getValue
+  // 如有必要，要确保调用myCall改变this指向的是一个方法。
+  if (typeof this !== 'function') {
+    throw new TypeError('Error');
+  }
+  
+  // 首先 context 为可选参数，如果不传的话默认上下文为 window
+  context = context || window;
+  
+  // 接下来给 context 添加一个 fn 属性，并将值设置为需要调用的函数（这里的 this 就是要调用这个 myCall 的方法）
+  context.fn = this;
+  // 目标效果: getValue.myCall(a, 'mintnoii', '22') => a.fn = getValue
 
-  // 将 context 后面的参数取出来
-  var args = [...arguments].slice(1)
-  // getValue.call(a, 'mintnoii', '22') => a.fn('mintnoii', '22')
+  // 因为 call 可以传入多个参数作为调用函数的参数，所以需要将 context 后面的参数剥离出来
+  const args = [...arguments].slice(1);
+  // 目标效果: getValue.myCall(a, 'mintnoii', '22') => a.fn('mintnoii', '22')
 
-  // 利用新创建的对象执行该函数 
-  var result = context.fn(...args)
+  // 然后利用新创建的对象执行该函数
+  const result = context.fn(...args);
 
-  // 删除掉函数 fn
-  delete context.fn
-  return result
+  // 最后将对象上的函数删除
+  delete context.fn;
+  return result;
 }
 ```
 
-以上就是 `call` 的思路，`apply` 的实现也类似
+::: tip
+
+以上就是 `call` 的实现思路与流程，`apply` 的实现也类似，区别就在于对参数的处理。
+
+:::
 
 ```js
 Function.prototype.myApply = function (context) {
-  var context = context || window
-  context.fn = this
-
-  var result
-  // 需要判断是否存储第二个参数
-  // 如果存在，就将第二个参数展开
-  if (arguments[1]) {
-    result = context.fn(...arguments[1])
-  } else {
-    result = context.fn()
+  if (typeof this !== 'function') {
+    throw new TypeError('Error');
   }
-
-  delete context.fn
-  return result
+  context = context || window;
+  context.fn = this;
+  
+  let result;
+  // 处理参数和 call 有区别
+  
+  // 如果存在第二个参数数组，就将其展开后传递给 fn 并执行该函数
+  if (arguments[1]) {
+    result = context.fn(...arguments[1]);
+  } else {
+    result = context.fn();
+  }
+  
+  delete context.fn;
+  return result;
 }
 ```
 
-**`bind` 和其他两个方法作用也是一致的，只是该方法会返回一个函数，并且我们可以通过 `bind` 实现柯里化。**
+::: tip
 
-同样的，也来模拟实现下 `bind`
+**`bind` 和其他两个方法的作用是一样的，只是该方法会返回一个函数。并且我们可以通过 `bind` 实现柯里化。**
+
+:::
+
+::: tip
+
+`bind` 的实现对比 call、apply 略微地复杂了一点，因为 `bind` 要返回一个函数，需要判断一些边界问题。
+
+:::
+
+- `bind` 返回了一个函数，对于函数来说有两种方式调用，一种是直接调用，一种是通过 `new` 的方式，我们先来说直接调用的方式
+- 对于直接调用来说，这里选择了 `apply` 的方式实现，但是对于参数需要注意以下情况：因为 `bind` 可以实现类似这样的代码 `f.bind(obj, 1)(2)`，所以我们需要将两边的参数拼接起来，于是就有了这样的实现 `args.concat(...arguments)`
+- 最后来说通过 `new` 的方式，在上面的👆 `this`部分，我们已经知道，对于 `new` 的情况来说，`this`不会被任何方式改变，所以对于这种情况我们需要忽略传入的 `this`。
 
 ```js
-Function.prototype.myBind = function() {
+Function.prototype.myBind = function (context) {
   if (typeof this !== 'function') {
-    throw new TypeError(`${this} is not callable`);
+    throw new TypeError('Error');
   }
-  var self = this;
-  // 模拟 es6 的解构效果
-  var that = arguments[0];
-  var argv = [].slice.call(arguments, 1);
-  return function() {
-    // [].slice.call(arguments, 0) 将类数组转换为数组
-    return self.apply(that, argv.concat(slice.call(arguments, 0)));
-  };
-};
+  const _this = this;
+  const args = [...arguments].slice(1);
+  // 返回一个函数
+  return function F() {
+    // 因为返回了一个函数，我们可以 new F()，所以需要判断
+    if (this instanceof F) {
+      return new _this(...args, ...arguments);
+    }
+    return _this.apply(context, args.concat(...arguments));
+  }
+}
 ```
 > 更多实现方式与细节问题查看 [MDN 比较权威的实现](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply)
+>
+> 推荐阅读：[JavaScript深入之bind的模拟实现](https://github.com/mqyqingfeng/Blog/issues/12)
 
 ## async 和 await
 async 和 await，就是 Generator 函数的语法糖，它建立在 Promises 上，并且与所有现有的基于 Promise 的 API 兼容。
