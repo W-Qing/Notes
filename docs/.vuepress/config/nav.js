@@ -45,7 +45,7 @@ const nav = [
   },
   {
     text: 'About',
-    link: '/about/'
+    link: '/About/'
   },
 // {
 //   text: '其他',

@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: /img/notes.png
+heroImage: /img/my.jpg
 actionText: Let's go 👉
 actionLink: /frontend/HTML/
 features:
