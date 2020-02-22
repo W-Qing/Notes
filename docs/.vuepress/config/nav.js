@@ -17,6 +17,13 @@ const nav = [
         ]
       },
       {
+        text: '工程化',
+        items: [
+          { text: 'Webpack', link: '/Frontend/Webpack/'},
+          // { text: '自动化测试', link: '/Frontend/Browser/' }
+        ]
+      },
+      {
         text: '框架',
         items: [
           { text: 'Vue', link: '/Frontend/Vue/'},
