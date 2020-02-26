@@ -1,0 +1,40 @@
+name: W-Qing's Notes
+
+# 设置监听仓库事件
+on:
+   # 监听master分支的推送
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+    # 设置运行环境
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - uses: actions/checkout@v2 # 先检出版本
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1 # 安装 node 环境
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm install # 安装vue-press等依赖
+    - run: git config --global user.name "W-Qing" # 设置你的账户名
+    - run: git config --global user.email "scorpio971028@gmail.com" # 设置你的登录账号
+    - run: npm run build --if-present
+    - run: npm test
+    - name: 代码提交到主仓库
+      env:
+        CI: true
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }} # 这个东西我下面会讲
+        run: |
+          cd docs/.vuepress/dist
+          echo 'mintnoii.com' > CNAME
+          git init
+          git add .
+          git commit -m 'deploy my notes'
+          git push -f "https://W-Qing:${ACCESS_TOKEN}@github.com/W-Qing/Notes.git" master # 推送到指定仓库的指定分支
