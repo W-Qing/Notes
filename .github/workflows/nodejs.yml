@@ -30,11 +30,12 @@ jobs:
     - name: 代码提交到主仓库
       env:
         CI: true
-        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }} # 这个东西我下面会讲
-        run: |
-          cd docs/.vuepress/dist
-          echo 'mintnoii.com' > CNAME
-          git init
-          git add .
-          git commit -m 'deploy my notes'
-          git push -f "https://W-Qing:${ACCESS_TOKEN}@github.com/W-Qing/Notes.git" master # 推送到指定仓库的指定分支
+        ACCESS_TOKEN: ${{ secrets.NotesDeploy }}
+        
+    - name: Start Deploy
+    - run: cd docs/.vuepress/dist
+    - run: echo 'mintnoii.com' > CNAME
+    - run: git init
+    - run: git add .
+    - run: git commit -m 'deploy my notes'
+    - run: git push -f "https://W-Qing:${ACCESS_TOKEN}@github.com/W-Qing/Notes.git" master # 推送到指定仓库的指定分支
