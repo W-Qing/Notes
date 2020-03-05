@@ -271,7 +271,7 @@ ToPrimitive([]) == 0
 
 ### 原型对象
 
-**绝大部分的函数（少数内建函数除外，Math) 都有一个`prototype`属性，这个属性值是一个对象，即构造函数用来创建新实例的原型。**  而所有被创建的实例对象都会共享原型对象，因此这些对象便可以访问原型对象的属性。
+**绝大部分的函数（少数内建函数除外，Math) 都有一个`prototype`属性，这个属性值是一个对象，即构造函数用来创建新实例的原型。(显式原型)**  而所有被创建的实例对象都会共享原型对象，因此这些对象便可以访问原型对象的属性。
 
 例如`hasOwnProperty()`方法存在于 Obejct 原型对象中，它便可以被任何对象当做自己的方法使用。
 
@@ -296,7 +296,7 @@ Object.prototype.hasOwnProperty("hasOwnProperty") //true
 
 ### 原型链
 
-原因是**每个对象都有 `__proto__` 属性，此属性指向该对象的构造函数的原型。**
+原因是**每个对象都有 `__proto__` 属性，此属性指向该对象的构造函数的原型。(隐式原型)**
 
 > 其实这个属性指向了 `[[prototype]]`，但是 `[[prototype]]` 是内部属性，我们并不能访问到，所以使用 `_proto_` 来访问。
 >
@@ -305,7 +305,7 @@ Object.prototype.hasOwnProperty("hasOwnProperty") //true
 
 ![prototype](../Images/js/yuanxinglian.png)
 
-如果你想更进一步的了解原型，可以仔细阅读 [深度解析原型中的各个难点](https://github.com/KieSun/Blog/issues/2)。
+如果想更进一步的了解原型，可以仔细阅读 [深度解析原型中的各个难点](https://github.com/KieSun/Blog/issues/2)。
 
 ## this
 
