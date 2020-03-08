@@ -116,3 +116,54 @@ git branch -a               //查看所有分支
 如果在分支合并时，不同的分支修改了同一个文件的同一部分， 此时 git 是无法判断该使用哪个分支的代码的， 这样就会产生冲突，虽然 git 进行了合并， 但并没有提交，  需要我们解决冲突后再重新提交。
 
 我们可以通过`git status`查看是哪些文件发生了冲突，然后逐一解决， 把冲突的代码按正确的代码修复后， 需要重新`git add`, `git commit`, `git push`。
+
+## 远程仓库
+
+克隆远程仓库：**
+
+通过`git clone url`来克隆远程仓库
+
+```bash
+// 默认会在拉取的路径下新建一个 blog-mason 的文件夹
+git clone https://github.com/MasonEast/blog-mason.git   
+
+// 如果不想要文件夹 blog-mason，可以在url后面，空格加上新名字
+git clone https://github.com/MasonEast/blog-mason.git newName
+
+// 如果就想要在当前路径下放项目文件， 不要那个外面的文件夹，直接在后面加点 .
+git clone https://github.com/MasonEast/blog-mason.git .
+```
+
+**查看远程仓库：**
+
+我们克隆的仓库通过`git remote`会看到一个叫 origin 的远程库， 这是 git 默认标识克隆的原始仓库。
+
+通过`git remote -v`或`git remote --verbose`我们可以查看到更加详细的信息，即对应的项目地址， 正常会有两个， 但如果你没有 push 权限的话就只能看到一个fetch的地址。
+
+```bash
+git remote -v
+
+origin  git@github.com:MasonEast/blog-mason.git (fetch)
+origin  git@github.com:MasonEast/blog-mason.git (push)
+```
+
+**删除远程分支：**
+
+```bash
+git push origin :xxx
+//也可以
+git push origin --delete xxx
+```
+
+**删除远程仓库：**
+
+```bash
+git remote rm xxx
+```
+
+**重命名远程仓库：**
+
+```bash
+git remote rename oldName newName
+```
+
