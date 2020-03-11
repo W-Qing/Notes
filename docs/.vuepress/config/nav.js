@@ -20,6 +20,7 @@ const nav = [
         text: '工程化',
         items: [
           { text: 'Webpack', link: '/Frontend/Webpack/'},
+          { text: 'Git', link: '/Frontend/Git/'},
           // { text: '自动化测试', link: '/Frontend/Browser/' }
         ]
       },

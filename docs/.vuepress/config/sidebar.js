@@ -16,6 +16,7 @@ const Frontend =  [
     children: [
       '/Frontend/Engineering/',
       '/Frontend/Webpack/',
+      '/Frontend/Git/',
     ],
   },
   {

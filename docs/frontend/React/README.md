@@ -1,7 +1,3 @@
----
-
----
-
 # React
 
 [React 文档学习笔记](https://juejin.im/post/5d372c53e51d4555fc1acd68)
@@ -220,7 +216,7 @@ const Test = ({ list, handleClick }) => ({
 - 一个组件所需要的数据，必须由父组件传过来，而不能像 flux 那样直接从 store 中取。
 - 当一个组件相关的数据更新时，即使父组件不需要用到这个组件，父组件还是会重新 render，可能会有效率影响，或者需要写复杂的shouldComponentUpdate 进行判断。
 
-## edux 中如何进行异步操作？
+## Redux 中如何进行异步操作？
 
 当然，我们可以在`componentDidmount`中直接进行请求无须借助 redux。
 
