@@ -192,21 +192,23 @@ const Test = ({ list, handleClick }) => ({
 
 ![reduxStore](../Images/react/reduxStore.png)
 
-## redux 的工作流程？
+## Redux 的工作流程？
 
-首先，熟悉几个核心概念：
+**核心概念：**
 
 - Store：保存数据的地方，你可以把它看成一个容器，整个应用只能有一个 Store。
 - State：Store 对象包含所有数据，如果想得到某个时刻的数据，就要对 Store 生成快照，这种某个时刻快照的数据集合，就叫做 State。
-- Action：State 的变化，会导致 View 的变化。但是，用户接触不到 State，只能接触到 View。所以，State 的变化必须是 View 导致的。Action 就是 View 发出的通知，表示 State 应该要发生变化了。
+- Action：State 的变化，会导致 View 的变化。但是，用户接触不到 State，只能接触到 View。所以，State 的变化必须是 View 导致的。Action（一个用来描述要对 State 做什么修改的对象）就是 View 发出的通知，表示 State 应该要发生变化了。
 - Action Creator：View 要发送多少种消息，就会有多少种 Action。如果都手写，会很麻烦，所以我们定义一个函数来生成 Action，这个函数就叫 Action Creator。
 - Reducer：Store 收到 Action 以后，必须给出一个新的 State，这样 View 才会发生变化。这种 State 的计算过程就叫做 Reducer。Reducer 是一个函数，它接受 Action 和当前 State 作为参数，返回一个新的 State。
 - dispatch：是 View 发出 Action 的唯一方法。
 
-完整工作流程：
+> Redux 只有一个单一的 store 和一个根级的 reduce 函数（reducer）。随着应用不断变大，你应该把根级的 reducer 拆成多个小的 reducers，分别独立地操作 state 树的不同部分，而不是添加新的 stores。这就像一个 React 应用只有一个根级的组件，这个根组件又由很多小组件构成。
+
+**完整工作流程：**
 
 1. 首先，用户（通过 View）发出 Action，发出方式就用到了 dispatch 方法。
-2. 然后，Store 自动调用 Reducer，并且传入两个参数：当前 State 和收到的 Action，Reducer 会返回新的 State
+2. 然后，Store 自动调用 Reducer，并且传入两个参数：当前 State 和收到的 Action，Reducer 会返回新的 State。
 3. State 一旦有变化，Store 就会调用监听函数，来更新 View。
 
 到这儿为止，一次用户交互流程结束。可以看到，在整个流程中数据都是单向流动的，这种方式保证了流程的清晰。
@@ -218,7 +220,15 @@ const Test = ({ list, handleClick }) => ({
 - 一个组件所需要的数据，必须由父组件传过来，而不能像 flux 那样直接从 store 中取。
 - 当一个组件相关的数据更新时，即使父组件不需要用到这个组件，父组件还是会重新 render，可能会有效率影响，或者需要写复杂的shouldComponentUpdate 进行判断。
 
-## react-redux 是如何工作的？
+## edux 中如何进行异步操作？
+
+当然，我们可以在`componentDidmount`中直接进行请求无须借助 redux。
+
+但是在一定规模的项目中，上述方法很难进行异步流的管理，通常情况下我们会借助 redux 的异步中间件进行异步处理。
+
+redux 异步流中间件其实有很多，但是当下主流的异步中间件只有两种 redux-thunk、redux-saga，当然 redux-observable 可能也有资格占据一席之地。
+
+## React-redux 是如何工作的？
 
 - Provider: Provider 的作用是从最外部封装了整个应用，并向 connect 模块传递 store
 - connect: 负责连接 React 和 Redux
@@ -250,10 +260,4 @@ mobx 适合短平快的项目：mobx 上手简单，样板代码少，可以很�
 
 当然 mobx 和 redux 也并不一定是非此即彼的关系，你也可以在项目中用 redux 作为全局状态管理，用 mobx 作为组件局部状态管理器来用。
 
-## redux 中如何进行异步操作？
 
-当然，我们可以在`componentDidmount`中直接进行请求无须借助 redux。
-
-但是在一定规模的项目中，上述方法很难进行异步流的管理，通常情况下我们会借助 redux 的异步中间件进行异步处理。
-
-redux 异步流中间件其实有很多，但是当下主流的异步中间件只有两种 redux-thunk、redux-saga，当然 redux-observable 可能也有资格占据一席之地。
