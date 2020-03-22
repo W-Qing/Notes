@@ -625,10 +625,10 @@ console.log(b.jobs.first) // FE
 
 但是该方法也是有局限性的：
 
-- 会忽略 `undefined`
-- 会忽略 `symbol`
-- 不能序列化函数
-- 不能解决循环引用的对象
+- 会抛弃对象的`constructor`，所有的构造函数会指向`Object`
+- 会忽略 `undefined`、 `symbol`
+- 不能序列化函数、`RegExp`等特殊对象
+- 不能解决循环引用的对象，会报错
 
 ```js
 let obj = {
@@ -658,11 +658,12 @@ let a = {
     age: undefined,
     sex: Symbol('male'),
     jobs: function() {},
-    name: 'mintnoii'
+    name: 'mintnoii',
+    reg: new RegExp("e","g")
 }
 let b = JSON.parse(JSON.stringify(a))
 
-console.log(b) // {name: "mintnoii"}
+console.log(b) // {name: "mintnoii", reg: {}}
 ```
 
 但是在通常情况下，复杂数据都是可以序列化的，所以这个函数可以解决大部分问题，并且该函数是内置函数中处理深拷贝性能最快的。
@@ -1190,65 +1191,5 @@ parseFloat((0.1 + 0.2).toFixed(10))
 |  \D  |      和上面相反      |
 |  \b  | 匹配单词的开始或结束 |
 |  \B  |      和上面相反      |
-
-## 参数的传递方式
-
-**按值传递：**
-
-由于 js 中存在复杂类型和基本类型，对于基本类型而言，是按值传递的。
-
-```js
-var a = 1;
-function test(x) {
-  x = 10;
-  console.log(x);
-}
-test(a); // 10
-console.log(a); // 1
-```
-虽然在函数 test 中 a 被修改，并没有有影响到 外部 a 的值，基本类型是按值传递的。
-
-**复杂类型按引用传递？**
-
-我们将外部 a 作为一个对象传入 test 函数。
-
-```js
-var a = {
-  a: 1,
-  b: 2
-};
-function test(x) {
-  x.a = 10;
-  console.log(x);
-}
-test(a); // { a: 10, b: 2 }
-console.log(a); // { a: 10, b: 2 }
-```
-
-可以看到，在函数体内被修改的 a 对象也同时影响到了外部的 a 对象，可见复杂类型是按引用传递的。
-
-可是如果再做一个实验：
-```js
-var a = {
-  a: 1,
-  b: 2
-};
-function test(x) {
-  x = 10;
-  console.log(x);
-}
-test(a); // 10
-console.log(a); // { a: 1, b: 2 }
-```
-
-外部的 a 并没有被修改，如果是按引用传递的话，由于共享同一个堆内存，a 在外部也会表现为 10 才对。此时的复杂类型同时表现出了按值传递和按引用传递的特性。
-
-**按共享传递：**
-
-复杂类型之所以会产生这种特性，原因就是在传递过程中，对象 a 先产生了一个副本 a, 这个副本 a 并不是深克隆得到的副本 a, 副本 a 地址同样指向对象 a 指向的堆内存。
-
-因此在函数体中修改 x=10 只是修改了副本 a,a 对象没有变化。但是如果修改了 x.a=10 则是修改了两者指向的同一堆内存，此时对象 a 也会受到影响。
-
-有人讲这种特性叫做传递引用，也有一种说法叫做按共享传递。
 
 
