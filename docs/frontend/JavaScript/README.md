@@ -670,6 +670,12 @@ console.log(b) // {name: "mintnoii", reg: {}}
 
 > 当然如果你的数据中含有以上三种情况，可以使用 [lodash 的深拷贝函数](https://lodash.com/docs##cloneDeep)。
 
+### 共享传值
+
+JavaScript 中函数参数的传递方式是按值传递（传内存拷贝）的，准确来说是按共享传值（传引用的拷贝 call-by-sharing）。
+
+> [Is JavaScript a pass-by-reference or pass-by-value language?](https://stackoverflow.com/questions/518000/is-javascript-a-pass-by-reference-or-pass-by-value-language)
+
 ## 防抖与节流
 
 ### 防抖
