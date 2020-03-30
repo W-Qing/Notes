@@ -409,43 +409,69 @@ var obj = {
 
 ## new
 
-我们在调用 `new` 的过程中会发生以下四件事情：
+**作用：**
+
+:::tip
+
+`new`运算符可以为构造函数创建一个实例对象，实例与构造函数通过原型链连接。
+
+我们从而可以通过该实例访问到构造函数以及构造函数原型链中的属性和方法。
+
+:::
+
+ `new` 的内部工作过程中会发生以下四件事情：
 
 1. 创建成一个新对象
 2. 链接到原型
 3. 绑定 this
 4. 返回新对象
 
-我们也可以试着来自己实现一个 `new`
+**自己设计实现一个 `new`操作符:**
+
+- `new` 操作符会返回一个对象，所以我们需要在内部创建一个对象
+- 这个对象，也就是构造函数中的 `this`，可以访问到挂载在 `this` 上的任意属性
+- 这个对象还要能够访问到构造函数原型上的属性，所以需要将对象与构造函数链接起来
+- 返回原始值需要忽略，返回对象需要正常处理
+
+> 构造函数尽量不要返回值。因为返回原始值不会生效，返回对象会导致 new 操作符没有作用。
 
 ```js
-function create() {
-    // 创建一个空的对象
-    let obj = new Object()
-    // 获得构造函数
-    let Con = [].shift.call(arguments)
-    // 链接到构造函数的原型
-    obj.__proto__ = Con.prototype
-    // 执行构造函数，绑定 this
-    let result = Con.apply(obj, arguments)
-    // 确保 new 出来的是个对象
-    return typeof result === 'object' ? result : obj
+function create(Con, ...args) {
+  let obj = {}
+  Object.setPrototypeOf(obj, Con.prototype)
+  let result = Con.apply(obj, args)
+  return result instanceof Object ? result : obj
+  // return typeof result === 'object' ? result : obj 
 }
 ```
 
-对于实例对象来说，都是通过 `new` 产生的，无论是 `function Foo()` 还是 `let a = { b : 1 }` 。
+首先函数接受不定量的参数，第一个参数为构造函数，接下来的参数被构造函数使用。
 
-对于创建一个对象来说，更推荐使用字面量的方式创建对象（无论性能上还是可读性）。因为你使用 `new Object()` 的方式创建对象需要通过作用域链一层层找到 `Object`，但是你使用字面量的方式就没这个问题。
+然后内部创建一个空对象 `obj`。
+
+> 更推荐这种使用字面量的方式创建对象（无论性能上还是可读性）。因为使用`let obj = new Object()` 的方式创建对象需要通过作用域链一层层找到 `Object`，但是使用字面量的方式就没这个问题。
+
+因为 `obj` 对象需要访问到构造函数原型链上的属性，所以我们通过 `setPrototypeOf` 将两者联系起来。这段代码等同于 `obj.__proto__ = Con.prototype`。
+
+将 `obj` 绑定到构造函数上，并且传入剩余的参数。
+
+判断构造函数的返回值是否为对象，如果为对象就使用构造函数返回的值，否则使用 `obj`，这样就实现了忽略构造函数返回的原始值。
 
 ```js
-function Foo() {}
-// function 就是个语法糖
-// 内部等同于 new Function()
-let a = { b: 1 }
-// 这个字面量内部也是使用了 new Object()
+function Test(name, age) {
+  this.name = name
+  this.age = age
+}
+Test.prototype.sayName = function () {
+    console.log(this.name)
+}
+const a = create(Test, 'spike', 23)
+console.log(a.name) // 'spike'
+console.log(a.age) // 23
+a.sayName() // 'spike'
 ```
 
-对于 `new` 来说，还需要注意下运算符优先级。
+**对于 `new` 来说，还需要注意运算符优先级：**
 
 ```js
 function Foo() {
