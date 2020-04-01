@@ -409,43 +409,69 @@ var obj = {
 
 ## new
 
-我们在调用 `new` 的过程中会发生以下四件事情：
+**作用：**
+
+:::tip
+
+`new`运算符可以为构造函数创建一个实例对象，实例与构造函数通过原型链连接。
+
+我们从而可以通过该实例访问到构造函数以及构造函数原型链中的属性和方法。
+
+:::
+
+ `new` 的内部工作过程中会发生以下四件事情：
 
 1. 创建成一个新对象
 2. 链接到原型
 3. 绑定 this
 4. 返回新对象
 
-我们也可以试着来自己实现一个 `new`
+**自己设计实现一个 `new`操作符:**
+
+- `new` 操作符会返回一个对象，所以我们需要在内部创建一个对象
+- 这个对象，也就是构造函数中的 `this`，可以访问到挂载在 `this` 上的任意属性
+- 这个对象还要能够访问到构造函数原型上的属性，所以需要将对象与构造函数链接起来
+- 返回原始值需要忽略，返回对象需要正常处理
+
+> 构造函数尽量不要返回值。因为返回原始值不会生效，返回对象会导致 new 操作符没有作用。
 
 ```js
-function create() {
-    // 创建一个空的对象
-    let obj = new Object()
-    // 获得构造函数
-    let Con = [].shift.call(arguments)
-    // 链接到构造函数的原型
-    obj.__proto__ = Con.prototype
-    // 执行构造函数，绑定 this
-    let result = Con.apply(obj, arguments)
-    // 确保 new 出来的是个对象
-    return typeof result === 'object' ? result : obj
+function create(Con, ...args) {
+  let obj = {}
+  Object.setPrototypeOf(obj, Con.prototype)
+  let result = Con.apply(obj, args)
+  return result instanceof Object ? result : obj
+  // return typeof result === 'object' ? result : obj 
 }
 ```
 
-对于实例对象来说，都是通过 `new` 产生的，无论是 `function Foo()` 还是 `let a = { b : 1 }` 。
+首先函数接受不定量的参数，第一个参数为构造函数，接下来的参数被构造函数使用。
 
-对于创建一个对象来说，更推荐使用字面量的方式创建对象（无论性能上还是可读性）。因为你使用 `new Object()` 的方式创建对象需要通过作用域链一层层找到 `Object`，但是你使用字面量的方式就没这个问题。
+然后内部创建一个空对象 `obj`。
+
+> 更推荐这种使用字面量的方式创建对象（无论性能上还是可读性）。因为使用`let obj = new Object()` 的方式创建对象需要通过作用域链一层层找到 `Object`，但是使用字面量的方式就没这个问题。
+
+因为 `obj` 对象需要访问到构造函数原型链上的属性，所以我们通过 `setPrototypeOf` 将两者联系起来。这段代码等同于 `obj.__proto__ = Con.prototype`。
+
+将 `obj` 绑定到构造函数上，并且传入剩余的参数。
+
+判断构造函数的返回值是否为对象，如果为对象就使用构造函数返回的值，否则使用 `obj`，这样就实现了忽略构造函数返回的原始值。
 
 ```js
-function Foo() {}
-// function 就是个语法糖
-// 内部等同于 new Function()
-let a = { b: 1 }
-// 这个字面量内部也是使用了 new Object()
+function Test(name, age) {
+  this.name = name
+  this.age = age
+}
+Test.prototype.sayName = function () {
+    console.log(this.name)
+}
+const a = create(Test, 'spike', 23)
+console.log(a.name) // 'spike'
+console.log(a.age) // 23
+a.sayName() // 'spike'
 ```
 
-对于 `new` 来说，还需要注意下运算符优先级。
+**对于 `new` 来说，还需要注意运算符优先级：**
 
 ```js
 function Foo() {
@@ -681,101 +707,89 @@ JavaScript 中函数参数的传递方式是按值传递（传内存拷贝）的
 
 ## 防抖与节流
 
+防抖和节流的作用都是防止函数的多次调用。区别在于，假设一个用户一直触发这个函数，且每次触发函数的间隔小于 wait，防抖的情况下只会调用一次，而节流的情况是每隔一定时间（wait）调用函数。
+
+![防抖与节流](https://user-gold-cdn.xitu.io/2019/8/13/16c87d929467ab9c?imageslim)
+
 ### 防抖
 
-你是否在日常开发中遇到一个问题，在滚动事件中需要做个复杂计算或者实现一个按钮的防二次点击操作。
+适用场景：
 
-这些需求都可以通过函数防抖动来实现。尤其是第一个需求，如果在频繁的事件回调中做复杂计算，很有可能导致页面卡顿，不如将多次计算合并为一次计算，只在一个精确点做操作。
+- 按钮提交场景：防止多次提交按钮，只执行最后提交的一次
+- 服务端验证场景：表单验证需要服务端配合，只执行一段连续的输入事件的最后一次（搜索联想词功能也类似）
 
-PS：防抖和节流的作用都是防止函数多次调用。区别在于，假设一个用户一直触发这个函数，且每次触发函数的间隔小于 wait，防抖的情况下只会调用一次，而节流的情况会每隔一定时间（参数 wait）调用函数。
-
-我们先来看一个袖珍版的防抖理解一下防抖的实现：
+**防抖函数的简单实现：**
 
 ```js
-// func 是用户传入需要防抖的函数
 // wait 是等待时间
-const debounce = (func, wait = 50) => {
-  // 缓存一个定时器 id
-  let timer = 0
+const debounce = (fn, wait = 500) => {
+  // 缓存一个定时器
+  let timer = null
   // 这里返回的函数是每次用户实际调用的防抖函数
-  // 如果已经设定过定时器了就清空上一次的定时器
-  // 开始一个新的定时器，延迟执行用户传入的方法
   return (...args) => {
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => {
-      func.apply(this, args)
+      fn.apply(this, args)
     }, wait)
   }
 }
-// 不难看出如果用户调用该函数的间隔小于 wait 的情况下，上一次的时间还未到就被清除了，并不会执行函数
 ```
 
-这是一个简单版的防抖，但是有缺陷，这个防抖只能在最后调用。一般的防抖会有 immediate 选项，表示是否立即调用。这两者的区别，举个栗子来说：
+不难看出，如果用户调用该函数的时间间隔小于 wait，则上一个定时器的时间还未到就被清除了，新的定时器重新计算时间，所以函数并不会每次触发都执行。
 
-- 例如在搜索引擎搜索问题的时候，我们当然是希望用户输入完最后一个字才调用查询接口，这个时候适用`延迟执行`的防抖函数，它总是在一连串（间隔小于 wait 的）函数触发之后调用。
-- 例如用户给 interviewMap 点 star 的时候，我们希望用户点第一下的时候就去调用接口，并且成功之后改变 star 按钮的样子，用户就可以立马得到反馈是否 star 成功了，这个情况适用`立即执行`的防抖函数，它总是在第一次调用，并且下一次调用必须与前一次调用的时间间隔大于 wait 才会触发。
+这是一个简单版的防抖，但是有缺陷，即回调的方法只能在最后调用。一般的防抖会有 immediate 选项，表示是否立即调用。
 
-下面我们来实现一个带有立即执行选项的防抖函数
+关于这两者的区别，举个栗子来说明：
+
+- 在搜索引擎搜索问题的时候，我们当然是希望用户输入完最后一个字才调用查询接口，这个时候适用`延迟执行`的防抖函数，它总是在一连串（间隔小于 wait 的）函数触发之后调用。
+- 而如果用户是在进行点赞按钮的点击时，我们希望用户点第一下的时候就去调用接口，这样用户就可以立马得到 like or dislike 是否成功的反馈。这种情况就适用可以`立即执行`的防抖函数，它总是在第一次调用，并且下一次调用必须与前一次调用的时间间隔大于 wait 才会触发。
+
+**实现一个带有立即执行选项的防抖函数：**
 
 ```js
-// 这个是用来获取当前时间戳的
-function now() {
-  return +new Date()
-}
-/**
- * 防抖函数，返回函数连续调用时，空闲时间必须大于或等于 wait，func 才会执行
- *
- * @param  {function} func        回调函数
- * @param  {number}   wait        表示时间窗口的间隔
- * @param  {boolean}  immediate   设置为 ture 时，是否立即调用函数
- * @return {function}             返回客户调用函数
- */
-function debounce (func, wait = 50, immediate = true) {
-  let timer, context, args
-
-  // 延迟执行函数
-  const later = () => setTimeout(() => {
-    // 延迟函数执行完毕，清空缓存的定时器序号
-    timer = null
-    // 延迟执行的情况下，函数会在延迟函数中执行
-    // 使用到之前缓存的参数和上下文
-    if (!immediate) {
-      func.apply(context, args)
-      context = args = null
+function debounce(fn, delay, immediate){
+    var timer = null;
+    return function(){
+        // 缓存参数以及上下文
+        var context = this;
+        var args = arguments;
+        // 清除上一次的定时器
+        if(timer) clearTimeout(timer);
+        
+        // 立即执行
+        if(immediate){
+            var doNow = !timer;
+            timer = setTimeout(function(){
+                // 延迟函数执行完毕，清空缓存的定时器
+                timer = null;
+            },delay);
+            if(doNow){
+                // 立即调用函数
+                fn.apply(context,args);
+            }
+        }else{
+            //延迟执行
+            timer = setTimeout(function(){
+                fn.apply(context,args);
+            },delay);
+        }
     }
-  }, wait)
-
-  // 这里返回的函数是每次实际调用的函数
-  return function(...params) {
-    // 如果没有创建延迟执行函数（later），就创建一个
-    if (!timer) {
-      timer = later()
-      // 如果是立即执行，调用函数
-      // 否则缓存参数和调用上下文
-      if (immediate) {
-        func.apply(this, params)
-      } else {
-        context = this
-        args = params
-      }
-    // 如果已有延迟执行函数（later），调用的时候清除原来的并重新设定一个
-    // 这样做延迟函数会重新计时
-    } else {
-      clearTimeout(timer)
-      timer = later()
-    }
-  }
 }
 ```
 
-整体函数实现的不难，总结一下。
-
-- 对于按钮防点击来说的实现：如果函数是立即执行的，就立即调用，如果函数是延迟执行的，就缓存上下文和参数，放到延迟函数中去执行。一旦我开始一个定时器，只要我定时器还在，你每次点击我都重新计时。一旦你点累了，定时器时间到，定时器重置为 `null`，就可以再次点击了。
-- 对于延时执行函数来说的实现：清除定时器 ID，如果是延迟调用就调用函数
+> 如果函数是立即执行的，就立即调用。如果函数是延迟执行的，就缓存上下文和参数，放到延迟函数中去执行。一旦我开始一个定时器，只要我定时器还在，你每次点击调用都重新计时。一旦你点累了，定时器时间到，定时器重置为 `null`，就可以再次点击了。
 
 ### 节流
 
-防抖动和节流本质是不一样的。防抖动是将多次执行变为最后一次执行，节流是将多次执行变成每隔一段时间执行。
+防抖动和节流本质是不一样的。防抖动是将多次执行变为最后一次执行，节流是将多次执行变成每隔一段时间执行，所以节流会稀释函数的执行频率。
+
+适用场景：
+
+- 拖拽场景：固定时间内只执行一次，防止超高频次触发位置变动
+- 缩放场景：监控浏览器 resize
+- 动画场景：避免短时间内多次触发动画引起性能问题
+
+**节流函数的简单实现：**
 
 简单实现：
 
@@ -797,71 +811,17 @@ const throttle = (fn, delay = 500) => {
 完全版：
 
 ```js
-/**
- * underscore 节流函数，返回函数连续调用时，func 执行频率限定为 次 / wait
- *
- * @param  {function}   func      回调函数
- * @param  {number}     wait      表示时间窗口的间隔
- * @param  {object}     options   如果想忽略开始函数的的调用，传入{leading: false}。
- *                                如果想忽略结尾函数的调用，传入{trailing: false}
- *                                两者不能共存，否则函数不能执行
- * @return {function}             返回客户调用函数
- */
-_.throttle = function(func, wait, options) {
-    var context, args, result;
-    var timeout = null;
-    // 之前的时间戳
-    var previous = 0;
-    // 如果 options 没传则设为空对象
-    if (!options) options = {};
-    // 定时器回调函数
-    var later = function() {
-      // 如果设置了 leading，就将 previous 设为 0
-      // 用于下面函数的第一个 if 判断
-      previous = options.leading === false ? 0 : _.now();
-      // 置空一是为了防止内存泄漏，二是为了下面的定时器判断
-      timeout = null;
-      result = func.apply(context, args);
-      if (!timeout) context = args = null;
-    };
-    return function() {
-      // 获得当前时间戳
-      var now = _.now();
-      // 首次进入前者肯定为 true
-	  // 如果需要第一次不执行函数
-	  // 就将上次时间戳设为当前的
-      // 这样在接下来计算 remaining 的值时会大于 0
-      if (!previous && options.leading === false) previous = now;
-      // 计算剩余时间
-      var remaining = wait - (now - previous);
-      context = this;
-      args = arguments;
-      // 如果当前调用已经大于上次调用时间 + wait
-      // 或者用户手动调了时间
- 	  // 如果设置了 trailing，只会进入这个条件
-	  // 如果没有设置 leading，那么第一次会进入这个条件
-	  // 还有一点，你可能会觉得开启了定时器那么应该不会进入这个 if 条件了
-	  // 其实还是会进入的，因为定时器的延时
-	  // 并不是准确的时间，很可能你设置了 2 秒
-	  // 但是他需要 2.2 秒才触发，这时候就会进入这个条件
-      if (remaining <= 0 || remaining > wait) {
-        // 如果存在定时器就清理掉否则会调用二次回调
-        if (timeout) {
-          clearTimeout(timeout);
-          timeout = null;
-        }
-        previous = now;
-        result = func.apply(context, args);
-        if (!timeout) context = args = null;
-      } else if (!timeout && options.trailing !== false) {
-        // 判断是否设置了定时器和 trailing
-	    // 没有的话就开启一个定时器
-        // 并且不能不能同时设置 leading 和 trailing
-        timeout = setTimeout(later, remaining);
-      }
-      return result;
-    };
+const throttle = (fn, delay = 500) => {
+  let flag = true;
+  return (...args) => {
+    if (!flag) return;
+    flag = false;
+    setTimeout(() => {
+      fn.apply(this, args);
+      flag = true;
+    }, delay);
   };
+};
 ```
 
 ## 继承
@@ -1219,5 +1179,3 @@ parseFloat((0.1 + 0.2).toFixed(10))
 |  \D  |      和上面相反      |
 |  \b  | 匹配单词的开始或结束 |
 |  \B  |      和上面相反      |
-
-
