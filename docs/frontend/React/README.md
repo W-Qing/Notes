@@ -224,7 +224,7 @@ const Test = ({ list, handleClick }) => ({
 
 redux 异步流中间件其实有很多，但是当下主流的异步中间件只有两种 redux-thunk、redux-saga，当然 redux-observable 可能也有资格占据一席之地。
 
-## React-redux 是如何工作的？
+## React-Redux 是如何工作的？
 
 - Provider: Provider 的作用是从最外部封装了整个应用，并向 connect 模块传递 store
 - connect: 负责连接 React 和 Redux
@@ -234,7 +234,7 @@ redux 异步流中间件其实有很多，但是当下主流的异步中间件�
 
 ![react-redux 工作流程](../Images/react/reactRedux-life.png)
 
-## redux 与 mobx 的区别？
+## Redux 与 Mobx 的区别？
 
 **两者对比：**
 
@@ -256,4 +256,8 @@ mobx 适合短平快的项目：mobx 上手简单，样板代码少，可以很�
 
 当然 mobx 和 redux 也并不一定是非此即彼的关系，你也可以在项目中用 redux 作为全局状态管理，用 mobx 作为组件局部状态管理器来用。
 
+## React-Hooks
+
+> - [函数式组件与类组件有何不同](https://overreacted.io/zh-hans/how-are-function-components-different-from-classes/)
+> - [useEffect 完整指南](https://overreacted.io/zh-hans/a-complete-guide-to-useeffect/)
 
