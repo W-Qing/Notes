@@ -1,23 +1,23 @@
 // 导航栏配置
 const nav = [
   {
-    text: '首页',
+    text: 'Home',
     link: '/'
   },
   { 
-    text: '前端', 
+    text: 'FE', 
     items: [
       {
-        text: '基础',
+        text: 'Basic',
         items: [
           { text: 'HTML', link: '/Frontend/HTML/'},
           { text: 'CSS', link: '/Frontend/CSS/' },
           { text: 'JavaScript', link: '/Frontend/JavaScript/' },
-          { text: '浏览器', link: '/Frontend/Browser/' }
+          { text: 'Browser', link: '/Frontend/Browser/' }
         ]
       },
       {
-        text: '工程化',
+        text: 'Engineering',
         items: [
           { text: 'Webpack', link: '/Frontend/Webpack/'},
           { text: 'Git', link: '/Frontend/Git/'},
@@ -25,7 +25,7 @@ const nav = [
         ]
       },
       {
-        text: '框架',
+        text: 'Framework',
         items: [
           { text: 'Vue', link: '/Frontend/Vue/'},
           { text: 'React', link: '/Frontend/React/'}
@@ -34,10 +34,10 @@ const nav = [
     ]
   },
   { 
-    text: '计算机基础', 
+    text: 'CS', 
     items: [
       {
-        text: '网络协议',
+        text: 'Net protocol',
         items: [
           { text: 'HTTP', link: '/CS/HTTP/'},
           { text: 'TCP', link: '/CS/TCP/' },
