@@ -3,8 +3,8 @@ const sidebar = require("./config/sidebar"); //引入侧边栏配置
 // const routeConfig = require('./plugins/routeConfig'); //引入路由配置
 
 module.exports = {
-  title: "W-Qing's Notes",
-  description: "W-Qing 码字的地方 👨🏻‍💻",
+  title: "Mintoii's Notes",
+  description: " 📖 🤔 👨🏻‍💻 ",
   head: [
     // 这里的 '/' 指向 docs/.vuepress/public 文件目录
     // 配置网页的小图标，如下图
@@ -18,7 +18,7 @@ module.exports = {
   themeConfig: {
     displayAllHeaders: false, //展开侧边栏所有的小标题
     // sidebarDepth: 1, //提取markdown中h2标题，作为小标题显示在侧边栏上。
-    lastUpdated: "最后更新", // 文档更新时间：每个文件git最后提交的时间,
+    lastUpdated: "last updated", // 文档更新时间：每个文件git最后提交的时间,
     nav, //导航
     sidebar, //侧边栏
   },
@@ -29,7 +29,6 @@ module.exports = {
     ['@vuepress/google-analytics', {
       ga: 'UA-136843234-2'
     }],
-    // 你可以多次使用这个插件
     [
       'vuepress-plugin-container',
       {
