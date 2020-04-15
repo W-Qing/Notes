@@ -177,3 +177,32 @@ git rm xxx
 git reset HEAD xxx      //从暂存区中移除xxx文件
 ```
 
+## 开发实践
+
+![git-flow](../Images/git/git-flow.png)
+
+### Branchs
+
+**master branch:** from begining
+
+**develop branch:** from begining
+
+ **release(test) branch**: branch from develop, merge back to develop and master, and make tag(version) on master
+
+Next is optional:
+
+**feature branch:**  branch from develop, merge back to develop
+
+**hotfixes branch:** branch from master, merge back to develop and master, and make tag(version) on master
+
+### Flow
+
+1. step1. **owner** init repo, create master branch, and dev branch from master
+2.  step2. **developer** git clone the repo, switch to dev branch to develop
+   -  option1: start multiple features at the same time, developer can start feature1 branch, feature2 branch in the local branch, merge back to dev branch after development, push to origin/dev, and finally you can choose to delete or keep these feature branches
+   - option2: develop directly on dev branch, commit, and finally push to origin/dev
+   - option3: maintain a branch development of your own, merge to dev and then push before uploading
+3.  step3. **owner** branch release(test) branch when iteration ends. maintain the version.
+4.  step4. **developer** continue develop on dev branch, fix bugs on release(test) branch.
+5.  step5. when the release(test) branch is ready(no severe bug), **owner** merge to master branch, tag the version, owner merge to dev branch.
+6.  step6. when there are any bugs after release to user. developer make hotfixes branch，after test, merge to dev branch and master branch.
