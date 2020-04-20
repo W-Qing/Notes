@@ -1,8 +1,10 @@
 # Git
 
+![git经典流程](../Images/git/gitFlow.png)
+
 ## 相关术语
 
-`repository 仓库`、`branch 分支`、`summary 摘要`、`track 跟踪`、`modify 修改`、`stage 暂存`、`commit 提交`、`push 推送`、`pull 拉取`、`clone 克隆`、`amend 修改`、`merge 合并`、`conflict 冲突`、`origin 源`、`upstream 上游`、`downstream 下游`、`verbose 详情`、`reflog 参照日志`
+`Repository 本地仓库`、`Remote 远程仓库`、`branch 分支`、`summary 摘要`、`track 跟踪`、`modify 修改`、`Workspace 工作区`、`Index/Stage 暂存区`、`commit 提交`、`push 推送`、`pull 拉取`、`clone 克隆`、`amend 修改`、`merge 合并`、`conflict 冲突`、`origin 源`、`upstream 上游`、`downstream 下游`、`verbose 详情`、`reflog 参照日志`
 
 ## 基本操作
 
@@ -79,13 +81,15 @@ git reflog         //用来记录每一次命令， 常用来辅助版本切换
 `branch, checkout`常用命令:
 
 ```bash
-git checkout -b xxx         //可以快速新建并切换到新的分支
+git checkout -b xxx         // 可以快速新建并切换到新的分支
 
-git branch -d xxx           //当分支合并到主分支， 这个分支就可以通过-d删除了
+git branch -d xxx           // 当分支合并到主分支， 这个分支就可以通过-d删除了
 
-git branch -D xxx           //删除那些没有被合并的分支
+git branch -D xxx           // 删除那些没有被合并的分支
 
-git branch -a               //查看所有分支
+git branch -a               // 查看所有分支
+
+git branch -vv              // 查看当前的本地分支与远程分支的关联关系
 ```
 
 **分支合并：**
@@ -94,9 +98,9 @@ git branch -a               //查看所有分支
 
 使用`git merge xxx`即可将xxx分支合并到你当前所在的分支。
 
-如果在分支合并时，不同的分支修改了同一个文件的同一部分， 此时 git 是无法判断该使用哪个分支的代码的， 这样就会产生冲突，虽然 git 进行了合并， 但并没有提交，  需要我们解决冲突后再重新提交。
+如果在分支合并时，不同的分支修改了同一个文件的同一部分， 此时 git 是无法判断该使用哪个分支的代码的， 这样就会产生冲突，虽然 git 进行了合并， 但并没有提交，需要我们解决冲突后再重新提交。
 
-我们可以通过`git status`查看是哪些文件发生了冲突，然后逐一解决， 把冲突的代码按正确的代码修复后， 需要重新`git add`, `git commit`, `git push`。
+我们可以通过`git status`查看是哪些文件发生了冲突，然后逐一解决， 把冲突的代码按正确的代码修复后， 需要重新`add`, `commit`, `push`。
 
 ## 远程仓库
 
@@ -124,8 +128,8 @@ git clone https://github.com/MasonEast/blog-mason.git .
 ```bash
 git remote -v
 
-origin  git@github.com:MasonEast/blog-mason.git (fetch)
-origin  git@github.com:MasonEast/blog-mason.git (push)
+origin  git@github.com:W-Qing/Notes.git (fetch)
+origin  git@github.com:W-Qing/Notes.git (push)
 ```
 
 **删除远程分支：**
@@ -150,32 +154,69 @@ git remote rename oldName newName
 
 ## 关于误操作
 
-git 主要用于版本控制， 协同开发， 误操作可以撤销， 但是有的撤销是不可逆的， 我们一定要慎重对待， 不然可能导致部分代码丢失。
+git 主要用于版本控制， 协同开发， 误操作可以撤销， 但是**有的撤销是不可逆的， 我们一定要慎重对待， 不然可能导致部分代码丢失。**
 
-**修改最后一次提交：**
+**移除暂存区的文件：**
 
-场景： 某次提交完后， 发现少提交了文件， 我们需要撤销刚才的提交， 然后重新提交。
+场景： 有时候我们习惯性的使用`git add .`把所有修改的文件都提交到暂存区， 但有些文件是我们不应该提交的， 这时要从暂存区中移除文件。
 
 ```bash
-git add xxx             //添加少提交的文件到暂存区
-git commit --amend      //往最后一次提交中追加少提交的文件， 这次提交不会产生记录
+git reset HEAD xxx      // xxx文件名
 ```
 
 **移除本地仓库的文件：**
 
-场景： 我们通过`git commit`将文件提交到本地仓库后， 才想起来把不想提交的文件加进去了。
+场景： 如果我们不但`git add XXX`将文件添加到暂存区了，而且还`git commit`将其提交到本地仓库后， 才想起来它是多余的想取出来。
 
 ```bash
 git rm xxx  
 ```
 
-**移除暂存区的文件：**
+**修改最后的一次提交：**
 
-场景： 有时候我们习惯性`git add .`， 但有的文件我们不应该提交， 这时要从暂存区中移除文件。
+场景： 某次提交完后， 发现少提交了文件或者是最近一次提交的代码有问题怎么办？比起简答粗暴的再提交一次，更优雅的方式是：不进行再一次提交，而是修改这次提交。
 
 ```bash
-git reset HEAD xxx      //从暂存区中移除xxx文件
+git add xxx             // 添加少提交的或修改的文件到暂存区
+git commit --amend      // 往最后一次提交中追加少提交的文件，并修正提交信息
+
+git commit --amend --no-edit
+// 快捷方式， 使用 --no-edit 参数，它表示提交信息不会更改，在 git 上仅为一次提交。
 ```
+
+> 【amend】修正，会对最新一条 commit 进行修正，会把当前 commit 里的内容和暂存区（stageing area）里的内容合并起来后创建一个新的 commit，用这个新的 commit 把当前 commit 替换掉。
+>
+> 输入上面的命令后，Git 会进入提交信息编辑界面，然后你可以删除之前的 changeId，并且修改或者保留之前的提交信息，:wq 保存按下回车后，你的 commit 就被更新了。
+
+tips: 刚刚提交的代码文件没问题，只是提交信息写的有问题，该怎么修改？
+
+```bash
+git commit --amend -m "新的提交信息"
+```
+
+**关于暂存的问题**
+
+假如正在开发手中的某个需求，这是突然又来了个紧急 bug 需要修复，这时候需要先 stash 已经写的部分代码，使自己返回到上一个 commit 版本，改完 bug 之后再从缓存栈中推出之前未写完的代码，继续工作。
+
+```bash
+git stash // 添加缓存栈
+git stash list // 查看缓存栈
+git stash pop // 推出缓存栈
+git stash apply stash@{1} // 取出特定缓存内容
+```
+
+没有被 track 的文件（即从来没有被 add 过的文件不会被 stash 起来，因为 Git 会忽略它们。如果想把这些文件也一起 stash，可以加上 `-u` 参数。它是 `--include-untracked` 的简写。就像这样：`git stash -u`
+
+## 提交规范
+
+这个就是见仁见智啦，常用的几种提交格式类型：
+
+- feat：新功能（feature）
+- fix：修补 bug
+- docs：文档（documentation）
+- refactor: 重构（既不是新增功能，也不是修改bug而是优化现有项目的代码变动）
+- test：测试
+- chore：其他修改，比如构建过程或辅助工具的变动
 
 ## 开发实践
 
