@@ -3,7 +3,7 @@ const sidebar = require("./config/sidebar"); //引入侧边栏配置
 // const routeConfig = require('./plugins/routeConfig'); //引入路由配置
 
 module.exports = {
-  title: "Mintoii's Notes",
+  title: "Mintnoii's Notes",
   description: " 📖 🤔 👨🏻‍💻 ",
   head: [
     // 这里的 '/' 指向 docs/.vuepress/public 文件目录
