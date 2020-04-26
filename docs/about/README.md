@@ -1,4 +1,24 @@
-<div><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=22664257&auto=1&height=66"></iframe></div>
+---
+layout: SpecialLayout
+navbar: true
+---
+
+<!-- <div>
+<div class="video">
+      <div class="video-frame">
+        <img src="./overlay-hero.png" alt="Decorative image frame">
+      </div>
+    <div class="video-media">
+      <video playsinline="" autoplay="" loop="" muted="" data-autoplay="" poster="./ocean.png" x5-video-player-type="h5">
+        <source src="./ocean.webm" type="video/webm">
+        <p>Your user agent does not support the HTML5 Video element.</p>
+      </video>
+      <div class="video-overlay"></div>
+    </div>
+  </div>
+</div> -->
+
+<!-- <div><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=22664257&auto=1&height=66"></iframe></div> -->
 
 - 一个二流学校三流专业的四流毕业生 👨🏻‍🎓
 - 目前坐标上海，复制粘贴工程师 👨🏻‍💻
@@ -10,3 +30,4 @@
 - 喜欢读书与饮酒，努力保持社会思考与无聊输出 🗿
 - 没有 Typora 就不会写博客，没有 VSCode 就不会敲代码 💻
 - 目前最大的愿望是<del>「找个温柔可爱的女朋友」</del>脱贫 🤦🏻‍♂️
+
