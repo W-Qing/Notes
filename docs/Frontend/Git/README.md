@@ -6,6 +6,8 @@
 
 `Repository 本地仓库`、`Remote 远程仓库`、`branch 分支`、`summary 摘要`、`track 跟踪`、`modify 修改`、`Workspace 工作区`、`Index/Stage 暂存区`、`commit 提交`、`push 推送`、`pull 拉取`、`clone 克隆`、`amend 修改`、`merge 合并`、`conflict 冲突`、`origin 源`、`upstream 上游`、`downstream 下游`、`verbose 详情`、`reflog 参照日志`
 
+👉 [配置 ssh 及关联账号](https://juejin.im/post/5e9e5fa2f265da480003bc31)
+
 ## 基本操作
 
 - 初始化新仓库
