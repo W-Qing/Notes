@@ -209,6 +209,14 @@ git stash apply stash@{1} // 取出特定缓存内容
 
 没有被 track 的文件（即从来没有被 add 过的文件不会被 stash 起来，因为 Git 会忽略它们。如果想把这些文件也一起 stash，可以加上 `-u` 参数。它是 `--include-untracked` 的简写。就像这样：`git stash -u`
 
+**将一个分支的某次提交合并到另一个分支**
+
+有时候代码写完，commit 之后打算 push 的时候，才发现自己在 master 分支上，而我们要是想把这次提交的记录合并到 dev 分支，这就需要用到`git cherry-pick`命令。
+
+1. 首先，在 master 分支上敲 git log 命令，查找需要合并的 commit 记录，比如commitID：3fab5dexff。
+2. 然后，切换到 dev 分支，使用`git cherry-pick 3fab5dexff`  命令，就把该条 commit 记录合并到了 dev 分支，当然这只是在本地合并到了 dev 分支。
+3. 最后，git push 提交到 dev 远程。至此，就把不小心在 master 分支上开发的这条 commit 所涉及的更改合并到了远程 dev 分支。
+
 ## 提交规范
 
 这个就是见仁见智啦，常用的几种提交格式类型：
