@@ -16,6 +16,6 @@
 
 ## 项目内容有什么？
 
-- 线上地址：[W-Qing's Notes](https://www.mintnoii.com)
+- 线上地址：[Mintnoii's Notes](https://www.mintnoii.com)
 - 笔记整理计划及进度在项目的 [projects](https://github.com/W-Qing/Notes/projects/1) 查看
 
