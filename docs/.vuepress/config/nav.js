@@ -30,6 +30,12 @@ const nav = [
           { text: 'Vue', link: '/Frontend/Vue/'},
           { text: 'React', link: '/Frontend/React/'}
         ]
+      },
+      {
+        text: 'Security',
+        items: [
+          { text: 'Security', link: '/Frontend/Security/'}
+        ]
       }
     ]
   },

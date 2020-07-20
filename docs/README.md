@@ -2,7 +2,7 @@
 home: true
 heroImage: /img/my.jpg
 actionText: Let's go 👉
-actionLink: /frontend/HTML/
+actionLink: /Frontend/HTML/
 features:
 - title: 进可旱地捕鲸 🐳
   details: 积累前端、后端、数据库、网络协议、浏览器知识。

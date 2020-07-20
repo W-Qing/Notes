@@ -30,6 +30,13 @@ const Frontend =  [
       '/Frontend/React/',
     ]
   },
+  {
+    title: "安全",
+    collapsable: true,
+    children: [
+      '/Frontend/Security/'
+    ]
+  },
 ]
 const CS = [
   {
