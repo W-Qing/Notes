@@ -709,7 +709,7 @@ JavaScript 中函数参数的传递方式是按值传递（传内存拷贝）的
 
 防抖和节流的作用都是防止函数的多次调用。区别在于，假设一个用户一直触发这个函数，且每次触发函数的间隔小于 wait，防抖的情况下只会调用一次，而节流的情况是每隔一定时间（wait）调用函数。
 
-![防抖与节流](https://user-gold-cdn.xitu.io/2019/8/13/16c87d929467ab9c?imageslim)
+> 两个🌰：[demo](http://emn178.github.io/js-throttle-debounce/samples/demo/) [Debouncing and Throttling Explained Through Examples](https://css-tricks.com/debouncing-throttling-explained-examples/)
 
 ### 防抖
 
