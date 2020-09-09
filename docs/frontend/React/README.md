@@ -2,6 +2,9 @@
 
 [React 文档学习笔记](https://juejin.im/post/5d372c53e51d4555fc1acd68)
 
+[React 技术揭秘](https://react.iamkasong.com/) 🌟
+
+
 ## 最新的生命周期
 
 [查看 React 生命周期图](http://projects.wojtekmaj.pl/react-lifecycle-methods-diagram/) React 16 之后有三个生命周期将被废弃（但并未删除）
