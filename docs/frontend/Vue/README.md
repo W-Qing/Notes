@@ -1,5 +1,7 @@
 # Vue
 
+[Vue3.0（正式版）+ Vite开发快速入门](https://www.bilibili.com/video/BV1SZ4y157m8)
+
 ## 生命周期分析
 
 **生命周期是什么？**
