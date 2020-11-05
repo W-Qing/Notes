@@ -1,9 +1,11 @@
 name: Publish docs to github actions
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
