@@ -109,21 +109,21 @@ snabbdom.js 是社区内主流的 Virtual DOM 实现，vue 2.0 阶段与 snabbdo
 
 ## React  ⚔️  Vue
 
-两个框架在组件形式、数据管理、组件数据交互(父子/跨组件)、class 与 style、生命周期、事件处理(@Click vs onClick)等很多方面都有一些不同。
+两个框架在 组件形式、数据管理、组件数据交互(父子/跨组件)、class 与 style、生命周期、事件处理(@Click vs onClick)等很多方面都有一些不同。
 
 ### 核心思想
 
 **React**
 
-- react整体上是函数式的思想，组件使用jsx语法，all in js，将html与css全都融入javaScript，jsx语法相对来说更加灵活，写react应用感觉就像是在写javaScript。
+- react整体上是函数式的思想，将html与css全都融入javaScript，组件使用jsx语法，all in js。
 - 当组件调用setState或props变化的时候，组件内部render会重新渲染，子组件也会随之重新渲染，可以通过`shouldComponentUpdate`或者`PureComponent`可以避免不必要的重新渲染。
 
 **Vue**
 
-- vue的整体思想仍然是拥抱经典的html(结构)+css(表现)+js(行为)的形式，鼓励开发者使用template模板，并提供指令供开发者使用(v-if、v-show、v-for等等)，因此在开发vue应用的时候会有一种在写经典web应用（结构、表现、行为分离）的感觉。
-- 另一方面，在处理组件数据方面，vue2.0通过`Object.defineProperty`对数据做到了更细致的监听，能精确知道数据变化，不需要特别的优化就能达到很好的性能。
+- vue的整体思想仍然是拥抱经典的 html(结构)+css(表现)+js(行为)的形式，鼓励开发者使用template模板，并提供大量指令供开发者使用(v-if、v-show、v-for等等)，因此在开发vue应用的时候会有一种在写经典web应用的感觉。
+- 在处理组件数据方面，vue2.0通过`Object.defineProperty`对数据做到了更细致的监听，能精确知道数据变化，不需要特别的优化就能达到很好的性能。
 
-为什么 React 不精确监听数据变化呢？这是因为 Vue 和 React 设计理念上的区别，Vue 使用的是可变数据，而React更强调数据的不可变。所以应该说没有好坏之分，Vue更加简单，而React构建大型应用的时候更加能够控制细节。
+为什么 React 不精确监听数据变化呢？这是因为 Vue 和 React 设计理念上的区别，Vue 使用的是可变数据，而React更强调数据的不可变。所以说没有好坏之分，Vue更加简单，而React构建大型应用的时候更加能够控制细节。
 
 ### 关于渲染
 
@@ -148,8 +148,6 @@ snabbdom.js 是社区内主流的 Virtual DOM 实现，vue 2.0 阶段与 snabbdo
 
 - React是在组件JS代码中，通过原生JS实现模板中的常见语法，比如插值，条件，循环等，都是通过JS语法实现的
 - Vue是在和组件JS代码分离的单独的模板中，通过指令来实现的，比如条件语句就需要 `v-if` 来实现
-
-对这一点，我个人比较喜欢React的做法，因为他更加纯粹更加原生，而Vue的做法显得有些独特，会把HTML弄得很乱。举个例子，说明React的好处：
 
 react中render函数是支持闭包特性的，所以我们import的组件在render中可以直接调用。但是在Vue中，由于模板中使用的数据都必须挂在 `this` 上进行一次中转，所以我们`import` 一个组件完了之后，还需要在 `components`  中再声明下，这样显然是很奇怪但又不得不这样的做法。
 
