@@ -5,7 +5,6 @@
 > - [函数式组件与类组件有何不同](https://overreacted.io/zh-hans/how-are-function-components-different-from-classes/)
 > - [useEffect 完整指南](https://overreacted.io/zh-hans/a-complete-guide-to-useeffect/)
 
-
 ## 如何理解 Fiber 及 Time Slice？
 
 **React Fiber 是一种基于浏览器的单线程调度算法：**
@@ -30,3 +29,60 @@ Fiber 本质上是一个虚拟的堆栈帧，新的调度器会按照优先级�
 > 4. 隐藏内容的更新优先级最低。这通常也需要提示 React 指定组件是隐藏的，目前没有公开 API
 
 > 推荐阅读：[这可能是最通俗的 React Fiber（时间分片） 打开方式](https://juejin.im/post/5dadc6045188255a270a0f85) 
+
+## React Hooks
+
+- [React Hooks笔记](https://www.notion.so/React-Hooks-303a7c520bdd41d2921da51d83c85572)
+
+## useState 的细粒度
+
+在设计使用 state 之前，我们需要考虑状态拆分的「粒度」问题。如果粒度过细，代码就会变得比较冗余。如果粒度过粗，代码的可复用性就会降低。
+
+那么，到底哪些 state 应该合并，哪些 state 应该拆分呢？🤔
+
+1. **将完全不相关的 state 拆分为多组 state。比如 `size` 和 `position`。**
+2. **如果某些 state 是相互关联的，或者需要一起发生改变，就可以把它们合并为一组 state。比如 `left` 和 `top`。**
+
+```javascript
+function Box() {
+  const [position, setPosition] = usePosition();
+  const [size, setSize] = useState({width: 100, height: 100});
+ 	// ...
+}
+
+function usePosition() {
+  const [position, setPosition] = useState({left: 0, top: 0});
+
+  useEffect(() => {
+  // ...
+  }, []);
+
+  return [position, setPosition];
+}
+```
+
+-  如果使用单个 state 对象变量，每次更新 state 时需要合并之前的 state。 因为 `useState` 返回的 `setState` 会替换原来的值。
+
+## deps 依赖过多，导致 Hooks 难以维护？
+
+1. 依赖数组依赖的值最好不要超过 3 个，否则会导致代码会难以维护。
+2. 如果发现依赖数组依赖的值过多，我们应该采取一些方法来减少它。
+   - 去掉不必要的依赖。
+   - 将 Hook 拆分为更小的单元，每个 Hook 依赖于各自的依赖数组。
+   - 通过合并相关的 state，将多个依赖值聚合为一个。
+   - 通过 `setState` 回调函数获取最新的 state，以减少外部依赖。
+   - 通过 `ref` 来读取可变变量的值，不过需要注意控制修改它的途径。
+
+[deps 依赖过多](https://juejin.cn/post/6844903958968795149#heading-0)
+
+## useMemo
+
+应该使用 `useMemo` 的场景：
+
+- 保持引用相等
+- 成本很高的计算
+
+无需使用 `useMemo` 的场景：
+
+- 如果返回的值是原始值： `string`, `boolean`, `null`, `undefined`, `number`, `symbol`（不包括动态声明的 Symbol），一般不需要使用 `useMemo`。
+- 仅在组件内部用到的 object、array、函数等（没有作为 props 传递给子组件），且没有用到其他 Hook 的依赖数组中，一般不需要使用 `useMemo`。
