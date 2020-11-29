@@ -47,7 +47,7 @@ console.log(a.name) // EF
 > 3. 对象没有赋值的属性，该属性的值为 undefined。
 > 4. 函数没有返回值时，默认返回 undefined。
 > 
-> ![null与undefined](../Images/js/null-undefined.png)
+> ![null与undefined](~@frontendImg/js/null-undefined.png)
 > null表示空，指向一个固定的内存地址。undefined 是声明了但是没赋值。
 
 ## 数据类型判断

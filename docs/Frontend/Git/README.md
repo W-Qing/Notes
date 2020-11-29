@@ -1,6 +1,6 @@
 # Git
 
-![git经典流程](../Images/git/gitFlow.png)
+![git经典流程](~@frontendImg/git/gitFlow.png)
 
 ## 相关术语
 
@@ -230,7 +230,7 @@ git stash apply stash@{1} // 取出特定缓存内容
 
 ## 开发实践
 
-![git-flow](../Images/git/git-flow.png)
+![git-flow](~@frontendImg/git/git-flow.png)
 
 ### Branchs
 

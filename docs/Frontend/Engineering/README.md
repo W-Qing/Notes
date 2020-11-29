@@ -136,7 +136,7 @@ babel 本质就是编译器，它的转译过程分为三个阶段：
 2. 转换 Transform: 对于 AST 进行变换一系列的操作，babel 接受得到 AST 并通过 babel-traverse 对其进行遍历，在此过程中对相应节点进行添加、更新及移除等操作。
 3. 生成 Generate: 将变换后的 AST 再转换为 JS 代码, 使用到的模块是 babel-generator。
 
-![babel原理](../images/engineering/babel.png)
+![babel原理](~@frontendImg/engineering/babel.png)
 
 > 如何写一个babel插件，参考[官方的插件教程](https://github.com/jamiebuilds/babel-handbook/blob/master/translations/zh-Hans/plugin-handbook.md#builders)。
 

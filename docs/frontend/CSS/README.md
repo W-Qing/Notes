@@ -55,7 +55,7 @@ css 引入伪类和伪元素概念是为了格式化文档树以外的信息。�
 
 当浏览器对一个网页文档进行布局（layout）的时候，其渲染引擎会根据标准之一的 CSS 基础框盒模型（CSS basic box model），将所有元素表示为一个个矩形的盒子（box）。CSS 决定这些盒子的大小、位置以及属性（例如颜色、背景、边框尺寸…）。
 
-![盒模型](../Images/css/box.png)
+![盒模型](~@frontendImg/css/box.png)
 
 盒模型由 content（内容）、padding（内边距）、border（边框）、margin（外边距）四部分组成。
 
@@ -69,7 +69,7 @@ css 引入伪类和伪元素概念是为了格式化文档树以外的信息。�
 
 这样我们改四个中的任何一个，都会导致盒子总宽度的改变。这对我们开发来说并不友好。
 
-![css-盒模型](../Images/css/css-box.png)
+![css-盒模型](~@frontendImg/css/css-box.png)
 
 **而在 IE 怪异盒模型（IE8 以下）中，我们书写的宽度值并不是内容 content 的宽度，而是 border-left + padding-left + content 的宽度值 + padding-right + border-right 之和，height 同理。**
 

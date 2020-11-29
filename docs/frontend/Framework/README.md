@@ -24,7 +24,7 @@
 
 把 View 层需要的数据暴露，并对 View 层的数据绑定声明、 指令声明、 事件绑定声明负责，也就是负责处理 View 层的具体业务逻辑。ViewModel 底层会做好绑定属性的监听。当 ViewModel 中数据变化，View 层会得到更新；而当 View 中声明了数据的双向绑定（通常是表单元素），框架也会监听 View 层（表单）值的变化。一旦值变化，View 层绑定的 ViewModel 中的数据也会得到自动更新。
 
-![MVVM](../Images/framework/mvvm.png)
+![MVVM](~@frontendImg/framework/mvvm.png)
 
 在 JQuery 时期，如果需要刷新 UI 时，需要先取到对应的 DOM 再更新 UI，这样数据和业务的逻辑就和页面有强耦合。
 
@@ -65,7 +65,7 @@ Virtual DOM 是对真实 DOM 的抽象，本质上是 JavaScript 对象，这个
 
 :::
 
-![Virtual Dom](../Images/framework/VirtualDom.png)
+![Virtual Dom](~@frontendImg/framework/VirtualDom.png)
 
 ### 为什么需要 Virtual DOM？
 

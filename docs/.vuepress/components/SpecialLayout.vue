@@ -1,13 +1,13 @@
 <template>
   <div class="video">
-    <div class="video-frame">
+    <!-- <div class="video-frame">
       <img src="../../About/overlay-hero.png" class='Decorative' alt="Decorative image frame">
-    </div>
+    </div> -->
     <div class="video-media">
-      <video class="the-video" playsinline="" autoplay="" loop="" muted="" data-autoplay="" poster="../../About/ocean.png" x5-video-player-type="h5">
+      <!-- <video class="the-video" playsinline="" autoplay="" loop="" muted="" data-autoplay="" poster="../../About/ocean.png" x5-video-player-type="h5">
         <source src="../../About/ocean.webm" type="video/webm">
         <p>Your user agent does not support the HTML5 Video element.</p>
-      </video>
+      </video> -->
       <div class="video-overlay">
         <p>一个二流学校三流专业的四流毕业生 👨🏻‍🎓</p>
         <p>坐标上海，<del>前端开发</del>复制粘贴工程师 👨🏻‍💻</p>

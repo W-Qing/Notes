@@ -1,3 +1,4 @@
+const path = require('path');
 const nav = require("./config/nav"); //引入导航栏配置
 const sidebar = require("./config/sidebar"); //引入侧边栏配置
 // const routeConfig = require('./plugins/routeConfig'); //引入路由配置
@@ -38,4 +39,12 @@ module.exports = {
     ],
     // routeConfig,
   ],
+  configureWebpack: {
+    resolve: {
+      alias: {
+        // '@alias': '../Frontend/Images',
+        '@frontendImg': path.resolve(__dirname, '../Frontend/Images'),
+      }
+    }
+  }
 };

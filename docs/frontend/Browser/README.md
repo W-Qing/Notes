@@ -10,7 +10,7 @@
 6. **JavaScript 解释器**。用于解析和执行 JavaScript 代码。
 7. **数据存储**。这是持久层。浏览器需要在硬盘上保存各种数据，例如 Cookie。新的 HTML 规范 (HTML5) 定义了“网络数据库”，这是一个完整（但是轻便）的浏览器内数据库。
 
-![img](../Images/browser/partOfBrowser.png)
+![img](~@frontendImg/browser/partOfBrowser.png)
 
 > 值得注意的是，和大多数浏览器不同，Chrome 浏览器的每个标签页都分别对应一个渲染引擎实例。每个标签页都是一个独立的进程。
 
@@ -163,7 +163,7 @@ requestAnimationFrame 是 GUI 渲染之前执行，但在微服务之后，不�
 
 只有一个主线程，那 javascript 是如何处理各种同步与异步函数的调用关系的？答案是——**调用栈**。
 
-![Event Loop](../Images/browser/eventloop.jpg)
+![Event Loop](~@frontendImg/browser/eventloop.jpg)
 
 单线程的运行环境有且只有一个 `call-stack` 调用栈（执行栈），所有的任务都会被放到调用栈等待浏览器的主线程执行。
 
@@ -285,7 +285,7 @@ V8 的 GC （Garbage Collection）算法策略基于分代式回收机制，该�
 
 新生代中的对象主要通过 Scavenge 算法进行垃圾回收。Scavenge 的具体实现，主要采用了 Cheney 算法。
 
-![Scavenge 算法](../Images/browser/scavenge.png)
+![Scavenge 算法](~@frontendImg/browser/scavenge.png)
 
 1. 在新生代空间中，将堆内存空间分为两部分（semispace）。
 2. 在这两个空间中，必定有一个空间是使用的（From 空间），另一个空间是空闲的（To 空间）。
@@ -300,7 +300,7 @@ Scavenge/Cheney 算法的缺点是，它的算法机制决定了只能利用一�
 
 首先，老生代空间中的对象也是从新生代中晋升而来的，对象晋升到老生代后，将接受新的垃圾回收算法处理。
 
-![对象晋升](../Images/browser/duixiangjinsheng.png)
+![对象晋升](~@frontendImg/browser/duixiangjinsheng.png)
 
 **对象晋升的条件：**
 
