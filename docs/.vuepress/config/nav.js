@@ -59,7 +59,7 @@ const nav = [
   },
   {
     text: 'About',
-    link: '/About/'
+    link: 'https://www.notion.so/Hi-here-0a4a01ce46dc475a9318075eda4ad3b0'
   },
 // {
 //   text: '其他',

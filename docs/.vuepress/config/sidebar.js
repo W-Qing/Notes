@@ -24,7 +24,6 @@ const Frontend =  [
     collapsable: true,
     children: [
       // ['/Frontend/Vue/', 'Vue'],
-      // ['/Frontend/React/', 'React'],
       '/Frontend/Framework/',
       '/Frontend/Vue/',
       '/Frontend/React/',
