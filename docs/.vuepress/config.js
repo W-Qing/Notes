@@ -11,7 +11,7 @@ module.exports = {
     // 配置网页的小图标，如下图
     ["link", { rel: "icon", href: "/img/favorite.ico" }],
   ],
-  base: '/Notes/', // 部署到github会用到的配置
+  base: '/', // 部署到github会用到的配置
   markdown: {
     lineNumbers: false, // 代码块显示行号
   },
