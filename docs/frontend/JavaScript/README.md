@@ -29,7 +29,25 @@ b.name = 'EF'
 console.log(a.name) // EF
 ```
 
-**拓展：null 与 undefined 的区别？[stackoverflow](https://stackoverflow.com/questions/5076944/what-is-the-difference-between-null-and-undefined-in-javascript)**
+### 拓展
+
+- **为什么 0.1 + 0.2 != 0.3 ？**
+
+因为 JS 的数字类型是浮点类型的，没有整型。 而浮点类型是基于 IEEE 754 双精度版本（64 位）标准实现的，只要采用 IEEE 754 的语言都有该问题。
+
+我们都知道计算机表示十进制是采用二进制表示的，所以 `0.1` 在二进制表示为
+
+```js
+// (0011) 表示循环
+0.1 = 2^-4 * 1.10011(0011)
+```
+
+原生的解决办法，如下代码所示
+
+```js
+parseFloat((0.1 + 0.2).toFixed(10))
+```
+- **null 与 undefined 的区别？[stackoverflow](https://stackoverflow.com/questions/5076944/what-is-the-difference-between-null-and-undefined-in-javascript)**
 
 > **null 表示为空，代表此处不应该有值的存在。**
 >
@@ -1123,23 +1141,6 @@ let p = onWatch(obj, (v) => {
 })
 p.a = 2 // bind `value` to `2`
 p.a // -> Get 'a' = 2
-```
-
-## 为什么 0.1 + 0.2 != 0.3
-
-因为 JS 的数字类型是浮点类型的，没有整型。 而浮点类型是基于 IEEE 754 双精度版本（64 位）标准实现的，只要采用 IEEE 754 的语言都有该问题。
-
-我们都知道计算机表示十进制是采用二进制表示的，所以 `0.1` 在二进制表示为
-
-```js
-// (0011) 表示循环
-0.1 = 2^-4 * 1.10011(0011)
-```
-
-下面说一下原生解决办法，如下代码所示
-
-```js
-parseFloat((0.1 + 0.2).toFixed(10))
 ```
 
 ## 正则表达式
