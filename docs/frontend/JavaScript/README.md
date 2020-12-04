@@ -260,7 +260,7 @@ true + true // 2  触发特点2
 
 ### == 操作符
 
-![img](https://yck-1254263422.cos.ap-shanghai.myqcloud.com/blog/2019-06-01-043719.png)
+![prototype](../Images/js/toPrimitive.png)
 
 上图中的 `toPrimitive` 就是对象转基本类型。
 
@@ -506,7 +506,7 @@ new Foo.getName();   // -> 1
 new Foo().getName(); // -> 2
 ```
 
-![img](https://yck-1254263422.cos.ap-shanghai.myqcloud.com/blog/2019-06-01-043723.png)
+![优先级](../Images/js/precedence.png)
 
 从上图可以看出，`new Foo()` 的优先级大于 `new Foo` ，所以对于上述代码来说可以这样划分执行顺序
 
@@ -696,7 +696,7 @@ console.log(newObj)
 
 如果你有这么一个循环引用对象，你会发现你不能通过该方法深拷贝
 
-![img](https://yck-1254263422.cos.ap-shanghai.myqcloud.com/blog/2019-06-01-043724.png)
+![img](../Images/js/jsonerror.png)
 
 在遇到 `函数`、 `undefined` 或者 `symbol` 的时候，该对象也不能正常的序列化，它们会被忽略掉。
 
@@ -1153,7 +1153,7 @@ p.a // -> Get 'a' = 2
 |   []   |  匹配方括号内的任意字符。比如 [0-9] 就可以用来匹配任意数字   |
 |   ^    | ^9，这样使用代表匹配以 9 开头。[`^`9]，这样使用代表不匹配方括号内除了 9 的字符 |
 | {1, 2} |                      匹配 1 到 2 位字符                      |
-| (yck)  |                   只匹配和 yck 相同字符串                    |
+| (wang)  |                   只匹配和 wang 相同字符串                    |
 |   \|   |                     匹配 \| 前后任意字符                     |
 |   \    |                             转义                             |
 |   *    |               只匹配出现 0 次及以上 * 前的字符               |
