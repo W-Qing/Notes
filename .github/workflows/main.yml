@@ -1,0 +1,47 @@
+name: Deploy Notes to CloudBase
+
+# 触发条件：在 push 到 master 分支后
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+    build-and-deploy:
+      # 服务器环境：最新版 Ubuntu
+      runs-on: ubuntu-latest
+
+      steps:
+        # 拉取代码
+        - name: Checkout
+          uses: actions/checkout@v2
+          # with:
+           # persist-credentials: false
+
+         # 生成静态文件
+        - name: Build
+          run: yarn install && yarn run docs:build
+
+        # 使用云开发 Github Action 部署
+
+        - name: Deploy static to Tencent CloudBase
+
+          id: deployStatic
+
+          uses: TencentCloudBase/cloudbase-action@v1
+
+          with:
+            # 云开发的访问密钥 secretId 和 secretKey
+
+            secretId: ${{ secrets.CLOUDBASE_SECRET_ID }}
+
+            secretKey: ${{ secrets.CLOUDBASE_SECRET_KEY }}
+
+            # 云开发的环境id
+
+            envId: ${{ secrets.CLOUDBASE_ENV_ID }}
+
+            # Github 项目静态文件的路径
+
+            staticSrcPath: docs/.vuepress/dist
