@@ -8,7 +8,8 @@ on:
 
 jobs:
 
-    build-and-deploy:
+#     build-and-deploy:
+    deploy:
       # 服务器环境：最新版 Ubuntu
       runs-on: ubuntu-latest
 
@@ -20,8 +21,8 @@ jobs:
            # persist-credentials: false
 
          # 生成静态文件
-        - name: Build
-          run: yarn install && yarn run docs:build
+#         - name: Build
+#           run: yarn install && yarn run docs:build
 
         # 使用云开发 Github Action 部署
 
