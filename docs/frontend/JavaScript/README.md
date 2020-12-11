@@ -943,9 +943,9 @@ Function.prototype.myCall = function (context) {
   }
   
   // 首先 context 为可选参数，如果不传的话默认上下文为 window
+  // 接下来给 context 添加一个 fn 属性，并将值设置为需要调用的函数
+  //（这里的 this 就是要调用这个 myCall 的方法）
   context = context || window;
-  
-  // 接下来给 context 添加一个 fn 属性，并将值设置为需要调用的函数（这里的 this 就是要调用这个 myCall 的方法）
   context.fn = this;
   // 目标效果: getValue.myCall(a, 'mintnoii', '22') => a.fn = getValue
 
@@ -993,19 +993,19 @@ Function.prototype.myApply = function (context) {
 
 ::: tip
 
-**`bind` 和其他两个方法的作用是一样的，只是该方法会返回一个函数。并且我们可以通过 `bind` 实现柯里化。**
+**`bind` 和其他两个方法的作用是一样的，只是该方法会返回一个函数。同时，因为它返回函数，所以我们可以通过 `bind` 实现函数柯里化。**
 
 :::
 
-::: tip
+**`bind` 的实现比 call、apply 略微复杂一点，因为它要返回一个函数就需要判断一些边界问题。**
 
-`bind` 的实现对比 call、apply 略微地复杂了一点，因为 `bind` 要返回一个函数，需要判断一些边界问题。
+对于函数来说有两种方式调用，一种是直接调用，一种是通过 `new` 的方式。
 
-:::
+1. 对于直接调用来说，这里选择了 `apply` 的方式实现，但是对于参数需要注意以下情况：
 
-- `bind` 返回了一个函数，对于函数来说有两种方式调用，一种是直接调用，一种是通过 `new` 的方式，我们先来说直接调用的方式
-- 对于直接调用来说，这里选择了 `apply` 的方式实现，但是对于参数需要注意以下情况：因为 `bind` 可以实现类似这样的代码 `f.bind(obj, 1)(2)`，所以我们需要将两边的参数拼接起来，于是就有了这样的实现 `args.concat(...arguments)`
-- 最后来说通过 `new` 的方式，在上面的👆 `this`部分，我们已经知道，对于 `new` 的情况来说，`this`不会被任何方式改变，所以对于这种情况我们需要忽略传入的 `this`。
+   因为 `bind` 可以实现类似这样的代码 `f.bind(obj, 1)(2)`，所以我们需要将两边的参数拼接起来，于是就有了这样的实现 `args.concat(...arguments)`。
+
+2. 在上面的👆 `this`部分，我们已经知道，对于 `new` 的情况来说，`this`不会被任何方式改变，所以对于这种情况我们需要忽略传入的 `this`。
 
 ```js
 Function.prototype.myBind = function (context) {
