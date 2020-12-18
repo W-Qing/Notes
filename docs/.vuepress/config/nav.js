@@ -28,7 +28,8 @@ const nav = [
         text: 'Framework',
         items: [
           { text: 'Vue', link: '/Frontend/Vue/'},
-          { text: 'React', link: '/Frontend/React/'}
+          { text: 'React', link: '/Frontend/React/'},
+          { text: 'React Fiber', link: '/Frontend/ReactFiber/'}
         ]
       },
       {

@@ -27,6 +27,7 @@ const Frontend =  [
       '/Frontend/Framework/',
       '/Frontend/Vue/',
       '/Frontend/React/',
+      '/Frontend/ReactFiber/',
     ]
   },
   {
