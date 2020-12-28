@@ -6,39 +6,6 @@
 - [Webpack4 进阶与实践](https://juejin.im/post/5e5420e8e51d4526ea7ef35e)
 - [吐血整理-再来一打Webpack面试题](https://juejin.cn/post/6844904094281236487#heading-19)
 
-## Babel
-
-**Babel 是一个 JavaScript 编译器**
-
-::: tip
-
-[Babel](https://www.babeljs.cn/docs/) 是一个工具链，主要用于将 ECMAScript 2015+ 版本的代码转换为向后兼容的 JavaScript 语法，以便能够运行在当前和旧版本的浏览器或其他环境中。
-
-:::
-
-主要作用：
-
-- 语法转换
-- 通过 Polyfill 方式在目标环境中添加缺失的特性 (通过 [@babel/polyfill](https://www.babeljs.cn/docs/babel-polyfill) 模块)
-- 源码转换 (codemods)
-
-工作原理：
-
-1. **解析：将代码转换成 AST**
-
-- 词法分析：将代码(字符串)分割为 token流，即语法单元成的数组
-- 语法分析：分析 token 流(上面生成的数组)并生成 AST
-
-2. **转换：访问 AST 的节点进行变换操作生产新的 AST**
-
-- [Taro](https://github.com/NervJS/taro/blob/master/packages/taro-transformer-wx/src/index.ts#L15)就是利用 babel 完成的小程序语法转换
-
-3. **生成：以新的 AST 为基础生成代码**
-
-想了解如何一步一步实现一个编译器，可以移步 Babel 官网曾推荐的开源项目 [the-super-tiny-compiler](https://github.com/jamiebuilds/the-super-tiny-compiler)
-
-
-
 ## Loader 与 Plugin
 
 ::: tip
