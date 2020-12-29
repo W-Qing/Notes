@@ -49,24 +49,35 @@ parseFloat((0.1 + 0.2).toFixed(10))
 ```
 - **null 与 undefined 的区别？[stackoverflow](https://stackoverflow.com/questions/5076944/what-is-the-difference-between-null-and-undefined-in-javascript)**
 
-> **null 表示为空，代表此处不应该有值的存在。**
+- null 表示为空，没有对象，代表此处不应该有值的存在。 🙅🏻‍♂️
+
+> 一个对象可以是 null，代表是个空对象，而 null 本身也是对象。
 >
->  一个对象可以是 null，代表是个空对象，而 null 本身也是对象。常用来表示函数企图返回一个不存在的对象。用法：
+> 典型用法：
 >
 > 1. 作为函数的参数，表示该函数的参数不是对象。
-> 2. 作为对象原型链的终点。
+> 2. 作为返回值，用来表示函数企图返回一个不存在的对象
+> 3. 作为对象原型链的终点。
 >
-> **undefined 表示『不存在』。**
+> ```js
+> Object.getPrototypeOf(Object.prototype)
+> // null
+> ```
+
+![null与undefined](~@frontendImg/js/null-undefined.png)
+null表示空，指向一个固定的内存地址。undefined 是声明了但是没赋值。
+
+- undefined 表示『缺少值』或者『不存在』，就是此处应该有一个值，但是还没有定义。 🤷🏻‍♂️
+
+>  JavaScript 是一门动态类型语言，成员除了表示存在的空值外，还有可能根本就不存在（因为存不存在只有在运行时才知道），这就是 undefined 的意义所在。
 >
->  JavaScript 是一门动态类型语言，成员除了表示存在的空值外，还有可能根本就不存在（因为存不存在只有在运行时才知道），这就是 undefined 的意义所在。用法：
+> 用法：
 >
-> 1. 当声明的变量还未被初始化时，变量的默认值为 undefined。
+> 1. 当声明的变量还未被初始化或者赋值时，变量的默认值为 undefined。
 > 2. 调用函数时，应该提供的参数没有提供，该参数等于 undefined。
 > 3. 对象没有赋值的属性，该属性的值为 undefined。
-> 4. 函数没有返回值时，默认返回 undefined。
-> 
-> ![null与undefined](~@frontendImg/js/null-undefined.png)
-> null表示空，指向一个固定的内存地址。undefined 是声明了但是没赋值。
+> 4. **函数没有返回值时，默认返回 undefined**。
+>
 
 ## 数据类型判断
 
