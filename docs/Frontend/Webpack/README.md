@@ -4,6 +4,40 @@
 
 - [Webpack4 基础入门与实践](https://juejin.im/post/5e46e1206fb9a07cbe345dac)
 - [Webpack4 进阶与实践](https://juejin.im/post/5e5420e8e51d4526ea7ef35e)
+- [吐血整理-再来一打Webpack面试题](https://juejin.cn/post/6844904094281236487#heading-19)
+
+## Babel
+
+**Babel 是一个 JavaScript 编译器**
+
+::: tip
+
+[Babel](https://www.babeljs.cn/docs/) 是一个工具链，主要用于将 ECMAScript 2015+ 版本的代码转换为向后兼容的 JavaScript 语法，以便能够运行在当前和旧版本的浏览器或其他环境中。
+
+:::
+
+主要作用：
+
+- 语法转换
+- 通过 Polyfill 方式在目标环境中添加缺失的特性 (通过 [@babel/polyfill](https://www.babeljs.cn/docs/babel-polyfill) 模块)
+- 源码转换 (codemods)
+
+工作原理：
+
+1. **解析：将代码转换成 AST**
+
+- 词法分析：将代码(字符串)分割为 token流，即语法单元成的数组
+- 语法分析：分析 token 流(上面生成的数组)并生成 AST
+
+2. **转换：访问 AST 的节点进行变换操作生产新的 AST**
+
+- [Taro](https://github.com/NervJS/taro/blob/master/packages/taro-transformer-wx/src/index.ts#L15)就是利用 babel 完成的小程序语法转换
+
+3. **生成：以新的 AST 为基础生成代码**
+
+想了解如何一步一步实现一个编译器，可以移步 Babel 官网曾推荐的开源项目 [the-super-tiny-compiler](https://github.com/jamiebuilds/the-super-tiny-compiler)
+
+
 
 ## Loader 与 Plugin
 
@@ -35,6 +69,21 @@
 - style-loader：把 CSS 代码注入到 JavaScript 中，通过 DOM 操作去加载 CSS。
 - eslint-loader：通过 ESLint 检查 JavaScript 代码
 
+**是否写过 Loader? 简单描述下编写 loader 的思路？**
+
+Loader 支持链式调用，所以开发上需要严格遵循“单一职责”，每个 Loader 只负责自己需要负责的事情。
+
+[Loader的API](https://www.webpackjs.com/api/loaders/) 
+
+- Loader 运行在 Node.js 中，我们可以调用任意 Node.js 自带的 API 或者安装第三方模块进行调用
+- Webpack 传给 Loader 的原内容都是 UTF-8 格式编码的字符串，当某些场景下 Loader 处理二进制文件时，需要通过 exports.raw = true 告诉 Webpack 该 Loader 是否需要二进制数据
+- 尽可能的异步化 Loader，如果计算量很小，同步也可以
+- Loader 是无状态的，我们不应该在 Loader 中保留状态
+- 使用 loader-utils 和 schema-utils 为我们提供的实用工具
+- 加载本地 Loader 方法
+  1. Npm link
+  2. ResolveLoader
+
 **面试题：在实际工程中，配置文件上百行乃是常事，如何保证各个loader按照预想方式工作？**
 
 可以使用 `enforce` 强制执行 `loader` 的作用顺序，`pre` 代表在所有正常 loader 之前执行，`post` 是所有 loader 之后执行。(inline 官方不推荐使用)
@@ -49,6 +98,21 @@
 - webpack-bundle-analyzer: 可视化 webpack 输出文件的体积
 - mini-css-extract-plugin: 分离样式文件，CSS 提取为独立文件，支持按需加载 (替代extract-text-webpack-plugin)
 - webpack-bundle-analyzer: 可视化 Webpack 输出文件的体积 (业务组件、依赖第三方模块)
+
+**是否写过 Plugin？简单描述下编写 Plugin 的思路？**
+
+webpack在运行的生命周期中会广播出许多事件，Plugin 可以监听这些事件，在特定的阶段钩入想要添加的自定义功能。Webpack 的 Tapable 事件流机制保证了插件的有序性，使得整个系统扩展性良好。
+
+[Plugin的API](https://www.webpackjs.com/api/plugins/) 
+
+- compiler 暴露了和 Webpack 整个生命周期相关的钩子
+- compilation 暴露了与模块和依赖有关的粒度更小的事件钩子
+- 插件需要在其原型上绑定apply方法，才能访问 compiler 实例
+- 传给每个插件的 compiler 和 compilation对象都是同一个引用，若在一个插件中修改了它们身上的属性，会影响后面的插件
+- 找出合适的事件点去完成想要的功能
+  - emit 事件发生时，可以读取到最终输出的资源、代码块、模块及其依赖，并进行修改(emit 事件是修改 Webpack 输出资源的最后时机)
+  - watch-run 当依赖的文件发生变化时会触发
+- 异步的事件需要在插件处理完任务时调用回调函数通知 Webpack 进入下一个流程，不然会卡住
 
 **面试题：使用webpack开发时，你用过哪些可以提高效率的插件？** 🌟
 
